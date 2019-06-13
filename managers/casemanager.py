@@ -1,3 +1,5 @@
+import threading
+
 from case.reader.base import BaseReader
 from case.reader.excel import ExcelReader
 from exception.exception import NoPorterError, EmptyPackagesError
@@ -13,13 +15,31 @@ class CaseManager:
     """
 
     def __init__(self):
-        self.__porter = None
+        self.__porter = []
         self.__packager = set()
         self.__reader = set()
+        self.lock = threading.RLock()
+        self.concurrency = False
 
     def register_porter(self, porter):
+        if self.concurrency:
+            self.__concurrency_register(porter)
+            return
         if isinstance(porter, BasePorter):
-            self.__porter = porter
+            self.__porter.append(porter)
+        else:
+            self.exception(porter, "porter")
+
+    def __concurrency_register(self, porter):
+        """
+        多线程注册
+        :param porter:
+        :return:
+        """
+        if isinstance(porter, BasePorter):
+            self.lock.acquire(timeout=30)
+            self.__porter.append(porter)
+            self.lock.release()
         else:
             self.exception(porter, "porter")
 
@@ -27,12 +47,22 @@ class CaseManager:
         raise ValueError("{0} is not {1}".format(exc.__class__, msg))
 
     def register_reader(self, reader):
+        """
+        注册Reader
+        :param reader: 指定的Reader
+        :return:
+        """
         if isinstance(reader, BaseReader):
             self.__reader.add(reader)
         else:
             self.exception(reader, "reader")
 
     def register_packager(self, packager):
+        """
+        注册Packager
+        :param packager: packager
+        :return:
+        """
         if isinstance(packager, BasePackager):
             self.__packager.add(packager)
         else:
@@ -51,16 +81,25 @@ class CaseManager:
                 packager.select_reader(reader)
                 # packager 打包
                 packager.packing()
-                # porter接受
-                self.__porter.recv(packager.send())
+                # 生成一个porter
+                porter = Porter()
+                # 接受打包的数据
+                porter.recv(packager.send())
+                # 注册porter
+                self.register_porter(porter)
             except ValueError:
                 break
 
     def get_porter(self):
         if len(self.__porter) == 0:
-            raise EmptyPackagesError("porter`s package is empty")
+            raise EmptyPackagesError("porter queue is empty")
+
         if self.__porter:
-            return self.__porter
+            # 从队列获取porter
+            porter = self.__porter.pop(0)
+            if len(porter.all_packages) == 0:
+                raise EmptyPackagesError("porter`s packages is empty")
+            return porter
         raise NoPorterError("porter is none")
 
 

@@ -2,11 +2,12 @@ import time
 
 from selenium import webdriver
 from selenium.webdriver import ActionChains
-from selenium.webdriver.remote.webdriver import WebElement
+from selenium.webdriver.remote.webdriver import WebElement, WebDriver
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.support.ui import WebDriverWait
 
+from execute.object import Element
 from util.tools.strings import wash_string
 
 
@@ -107,13 +108,49 @@ class Driver:
             return self.find_element(method, value)
         raise ValueError(info + "不是元组类型")
 
-    # todo: 复选框，下拉框，
+    # todo:元素拖动
     def execute_element(self, result):
+        """
+        支持的方式：
+            js 脚本
+            点击
+            输入
+            选择框
+            切换iframe
+        :param result:
+        :return:
+        """
         ele = self.find_with_timeout(result.method, result.value, 5)
-        if result.action == "click":
-            return ele.click()
-        if result.action == "send_keys":
-            return ele.send_keys(result.inputs)
+        if isinstance(result, Element):
+            if result.action == "click":
+                return ele.click()
+            if result.action == "send_keys":
+                return ele.send_keys(result.inputs)
+            if result.action == "select":
+                # sex_select.select = (text,男)
+                # todo: deselect
+                select = Select(ele)
+                res = result.select.strip("(")
+                res = res.strip(")")
+                arr = res.split(",")
+                if len(arr) == 2:
+                    if arr[0] == "index":
+                        select.select_by_index(arr[1])
+                        return ele
+                    if arr[0] == "text":
+                        select.select_by_visible_text(arr[1])
+                        return ele
+                    if arr[0] == "value":
+                        select.select_by_value(arr[1])
+                        return ele
+                else:
+                    raise ValueError("'{}',格式错误".format(result.select))
+            if result.action == "iframe":
+                self.__driver.switch_to.frame(ele)
+            if result.action == "js":
+                self.__driver.execute_script(result.js)
+        else:
+            raise ValueError("{} is not Element".format(result.__class__))
 
     def find_element(self, method, value):
         """

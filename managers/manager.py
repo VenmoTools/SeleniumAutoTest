@@ -2,25 +2,21 @@ from managers.casemanager import CaseManager
 from managers.center import ExecuteCenter
 from plugin.assertplugin import AssertPlugin
 from util.packager.packager import ProcessPackager
-from util.porter.porter import Porter
 
 
 class Manager:
     """
     总管理器，负责搬运工(porter)调度
     """
+
     def __init__(self):
         self.case_manager = CaseManager()
         self.reader = None
-        self.porter = Porter()
         self.packager = ProcessPackager()
         self.center = ExecuteCenter()
 
     def select_reader(self, reader):
         self.reader = reader
-
-    def select_porter(self, porter):
-        self.porter = porter
 
     def select_center(self, case):
         if isinstance(case, ExecuteCenter):
@@ -48,7 +44,6 @@ class Manager:
         # 注册
         self.case_manager.register_reader(self.reader)
         self.case_manager.register_packager(self.packager)
-        self.case_manager.register_porter(self.porter)
         # 启动
         self.case_manager.start()
         # 将获得包裹的搬运工交给执行中心
@@ -60,6 +55,3 @@ class Manager:
     def get_execute(self):
         self.porking()
         return self.center
-
-
-

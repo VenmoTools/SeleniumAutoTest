@@ -42,9 +42,13 @@ class Executor:
             process = package.unpack()
             # 根据case生成Page Object
             self.object = PageObject(self.current_object)
+            # 指定当前使用的流程
             self.object.select_section(process.name)
+            # 初始化Driver
             self.driver = WebDriver.Driver(os=self.get_os())
+            # 启动Driver
             self.driver.start(config.selenium["browser"], config.selenium["driver_path"])
+            # 执行命令
             self.execute(process)
         else:
             raise ValueError("{0} must be Package".format(package.__class__))
@@ -56,6 +60,11 @@ class Executor:
         return os
 
     def gen_object_file(self, package):
+        """
+        用于生成PageObject
+        :param package: 流程名
+        :return:
+        """
         filename = package.name + ".ini"
         self.current_object = os.path.join(os.path.join(self.url, "temp"), filename)
         with GenPo(filename) as f:
@@ -71,6 +80,10 @@ class Executor:
             return case.element_name + "_button"
         if case.element_type == "下拉列表":
             return case.element_name + "_select"
+        if case.element_type == "iframe":
+            return case.element_name + "_iframe"
+        if case.element_type == "js":
+            return case.element_name + "_java_script"
 
     def execute_element(self, name):
         self.driver.execute_element(self.object.get_with_action(name))

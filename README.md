@@ -28,6 +28,17 @@
 + Generator:用于生成Test脚本
 + Report:执行用例生成报告
 
+### 执行流程
+由Reader读取测试用例(db,file) -> 形成每个执行步骤(Case) -> 多个执行步骤形成流程(Process)
+
+Packager将Process打包（Package） -> 多个Package形成包集合(Packages，可扩展成异步操作，分布式操作)  
+
+由Porter（搬运工）将Packages运送到CaseManager中 -> 由Manager进行调度给命令执行中心（ExecutorCenter）
+
+ExecutorCenter进行解包分发给执行器 -> 各执行器执行分配给自己的任务
+
+
+
 ## PageObject约定
 PageObject会根据测试用例自动生成xxx.ini文件，每次执行时都会清理
 

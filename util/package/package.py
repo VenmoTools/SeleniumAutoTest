@@ -48,7 +48,7 @@ class GenPo:
 
     def remove(self, path):
         for f in os.listdir(path):
-            os.remove(os.path.join(path,f))
+            os.remove(os.path.join(path, f))
         os.removedirs(path)
 
     def execute(self, cmd):
@@ -77,15 +77,38 @@ class GenPo:
                 return case.element_name + "_input"
             if case.element_type == "按钮":
                 return case.element_name + "_button"
+            if case.element_type == "下拉列表":
+                return case.element_name + "_select"
+            if case.element_type == "iframe":
+                return case.element_name + "_iframe"
+            if case.element_type == "js":
+                return case.element_name + "_java_script"
 
+    # todo:元素拖动
     def __action(self, case):
         if isinstance(case, BaseCase):
             if case.action == "点击":
                 data = "{0}.action={1}\n".format(self.__gen_name(case), "click")
                 return data
             if case.action == "输入":
-                data = "{0}.action={1}\n".format(self.__gen_name(case), "send_keys")
-                data += "{0}.input_value={1}\n".format(self.__gen_name(case), case.input)
+                name = self.__gen_name(case)
+                data = "{0}.action={1}\n".format(name, "send_keys")
+                data += "{0}.input_value={1}\n".format(name, case.input)
+                return data
+            if case.action == "iframe":
+                name = self.__gen_name(case)
+                data = "{0}.action={1}\n".format(name, "iframe")
+                data += "{0}.iframe={1}\n".format(name, "change")
+                return data
+            if case.action == "js":
+                name = self.__gen_name(case)
+                data = "{0}.action={1}\n".format(name, "js")
+                data += "{0}.javaScript={1}\n".format(name, case.input)
+                return data
+            if case.action == "选择框":
+                name = self.__gen_name(case)
+                data = "{0}.action={1}\n".format(name, "js")
+                data += "{0}.select={1}\n".format(name, case.input)
                 return data
 
     def __enter__(self):

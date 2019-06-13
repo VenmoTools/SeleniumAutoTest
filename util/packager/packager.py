@@ -2,7 +2,7 @@ from case.cases.normal import NormalCase
 from case.reader.base import BaseReader
 from case.reader.excel import ExcelReader
 from exception.exception import EmptyPackagesError, NoSuchReaderError
-from util.package.package import ProcessPackage, GenPo
+from util.package.package import ProcessPackage
 from util.packager.base import BasePackager
 from util.processor.CaseProcess import CaseProcessor
 
