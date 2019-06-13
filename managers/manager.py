@@ -1,5 +1,6 @@
 from managers.casemanager import CaseManager
 from managers.center import ExecuteCenter
+from plugin.assertplugin import AssertPlugin
 from util.packager.packager import ProcessPackager
 from util.porter.porter import Porter
 
@@ -54,8 +55,10 @@ class Manager:
         self.center.recv_porter(self.case_manager.get_porter())
         # 搬运工卸货
         self.center.distribute()
+        self.register_plugin(AssertPlugin("assertion"))
 
     def get_execute(self):
+        self.porking()
         return self.center
 
 
