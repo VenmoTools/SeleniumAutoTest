@@ -13,6 +13,7 @@
 + Porter： 负责从Packager取到数据送给CaseManager
 + CaseManager： 负责从管理多个Porter和Packager
 
+
 执行：
 + ExecuteCenter: 负责从CaseManager的搬运工手中获取Packages，并分发给Manager
 + Manager： 将packages中的每一个package分配给已注册的Executor
