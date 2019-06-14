@@ -1,14 +1,19 @@
 from case.reader.excel import ExcelReader
 from execute.driverexecute import NormalExecutor
-from managers.manager import Manager
+from plugin.assertplugin import AssertPlugin
+from report.Runner import Run
+from report.report import Report
 
 """
 
 """
 
 if __name__ == '__main__':
-    r = ExcelReader("/home/amdins/桌面/SeleniumAutoTest/case.xlsx")
-    man = Manager()
-    man.select_reader(r)
-    man.register_executor(NormalExecutor())
-    man.get_execute().run_by_name("case")
+    r = Run()
+    r.add_executor(NormalExecutor())
+    r.add_plugin(AssertPlugin("assertion"))
+    r.add_reader(ExcelReader())
+    r.generator_file("case")
+    report = Report()
+    report.start()
+

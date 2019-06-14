@@ -73,6 +73,7 @@ class Executor:
     def execute(self, process):
         raise NotImplementedError()
 
+    # todo: 拖动元素
     def kind(self, case):
         if case.element_type == "输入框":
             return case.element_name + "_input"
@@ -84,6 +85,8 @@ class Executor:
             return case.element_name + "_iframe"
         if case.element_type == "js":
             return case.element_name + "_java_script"
+        # if case.element_type == "拖动":
+        #     return case.element_name + "_drop"
 
     def execute_element(self, name):
         self.driver.execute_element(self.object.get_with_action(name))

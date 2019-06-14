@@ -112,12 +112,14 @@ class GenClass:
 class GenTest:
 
     def __init__(self, name):
-        self.package = ["import selenium.webdriver as webdriver", "import unittest",
-                        "from myselenium.run import Runner"]
+        self.package = ["import unittest"]
         self.mod_var = []
         self.clazz = GenClass()
         self.clazz.set_name(name)
         self.clazz.add_father("unittest.TestCase")
+
+    def add_package(self, package):
+        self.package.append(package)
 
     def add_mod_var(self, var):
         self.mod_var.append(var)

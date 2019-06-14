@@ -131,6 +131,16 @@ selenium = {
 #### 执行动作
 执行动作表示浏览器要执行的动作,滚动条操作，窗口切换等（暂未完成）
 
+#### 动作(元素动作)
+元素动作如下：
+1. 点击 （）
+2. 输入（需要在输入值写入输入的内容）
+3. 选择（选择框，输入值需要在输入值写入内容eg： (text,男)，表示使用text方式选择值为男的选项）
+4. js（要执行的js代码需要在输入值写入输入的内容）
+5. iframe（切换iframe，默认的值为change）
+
+todo: clear,submit,
+
 ## 使用方式
 ### 基本使用
 ```python
@@ -163,9 +173,8 @@ if __name__ == '__main__':
 可以指定插件在什么时刻执行
 
 例如：
-在测试用例之前执行：assertion:B
-
-断言插件暂时没有完成！
+在测试用例之前执行：assertion:B (before)
+在测试用例之后执行：assertion:A (After)
 
 ```python
 from plugin.base import BasePlugin
@@ -182,15 +191,170 @@ class ScreenPlugin(BasePlugin):
             raise Assertion()
 ```
 
+## 断言插件使用
+
+断言插件在断言失败时会抛出AssertionError()
+
+语法：
+
+### 断言关键字 
+1. contains(包含)
+2. exist(存在,待完成)
+3. is(是否一致)
+4. true(结果是否为True)
+5. false(结果是否为False)
+6. enable(元素是否可用)
+7. display(元素是否可见)
+8. selected(元素是否被选中)
+9. notnull(不为空)
+
+#### 语法
+is(内容<可以是文本也可以是元素执行动作>::'断言值')
+
+### 元素关键字
++ title:断言浏览器title值
++ element: 获取元素
++ element_is: 判断元素类型
++ element_attr： 获取元素值
++ element_property: 获取元素属性
++ element_text: 获取元素文本信息
+
++ js: 执行js
+
+
+### 元素语法
+#### 获取网页标题
+
+title
+
+#### 获取元素属性值
+使用反引号'`'
+```
+element_attr|`定位方式`,`定位值`,`属性名`|
+
+```
+例如：
+```
+element_attr|`id`,`username`,`data`|
+```
+
+#### 获取元素属性
+使用反引号'`'
+```
+element_property|`定位方式`,`定位值`,`属性名`|
+
+```
+例如：
+```
+element_property|`id`,`username`,`data`|
+```
+#### 执行js代码
+
+```
+js|alter('hello')|
+```
+
+### 例子
+
+#### 断言元素值
+```html
+<a class="big">你好</a>
+```
+```
+is(element_attr|`class`,`.big`|::'你好')
+```
+
+#### 断言元素属性
+```html
+<a class="big" data="1">你好</a>
+```
+```
+is(element_attr|`class`,`.big`,`data`|::'1')
+
+```
+
+#### 断言js执行结果
+
+```
+<div id="best-content" accuse="aContent" class="best-text mb-10">
+    <div class="wgt-best-mask">
+        <div class="wgt-best-showbtn">
+        展开全部<span class="wgt-best-arrowdown"></span>
+        </div>
+    </div>
+    hello world
+</div>
+
+```
+
+```
+is(js|`return document.getElementById("best-content").innerText;`|::'hello world')
+```
+
+## 测试报告
+实现原理:
+根据测试用例生成xx_test.py文件,然后使用unittest的testLoader,结合TestRunner实现
+
+```python
+unittest.defaultTestLoader.discover("路径", pattern="*_test.py")
+with open("result.html", 'wb') as f:
+    HTMLTestRunner(title=self.__title, description=self.__description,
+                   tester=self.__tester,
+                   stream=f).run(self.cover)
+```
+
+#### 使用
+```python
+from case.reader.excel import ExcelReader
+from execute.driverexecute import NormalExecutor
+from plugin.assertplugin import AssertPlugin
+from report.Runner import Run
+# 生成器
+r = Run()
+# 注册执行器
+r.add_executor(NormalExecutor())
+# 注册插件
+r.add_plugin(AssertPlugin("assertion"))
+# 注册Reader
+r.add_reader(ExcelReader())
+# 生成文件
+r.generator_file("case")
+
+```
+
+#### 生成效果
+```python
+import unittest
+from managers.manager import Manager
+from case.reader.excel import ExcelReader
+from execute.driverexecute import NormalExecutor
+from plugin.assertplugin import AssertPlugin
+
+man = Manager()
+man.select_reader(ExcelReader())
+man.register_executor(NormalExecutor())
+man.register_plugin(AssertPlugin('assertion'))
+execute = man.get_execute()
+
+
+class case(unittest.TestCase):
+	
+	def test_Test(self):
+		 execute.run_by_name('Test')
+
+```
+
+
 ## TODO
 
 - [x] 框架骨架
 - [x] 插件支持
-- [ ] 测试报告生成
+- [x] 丰富元素动作
+- [x] 断言插件
+- [x] 测试报告生成(待完善)
 - [ ] 邮件支持
 - [ ] 丰富插件
 - [ ] 异步执行 
-- [ ] 丰富元素动作
 - [ ] 丰富浏览器行为
 - [ ] 从数据库读取测试用例
 - [ ] 远程测试支持

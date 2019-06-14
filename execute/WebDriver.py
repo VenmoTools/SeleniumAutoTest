@@ -1,8 +1,9 @@
+import re
 import time
 
 from selenium import webdriver
 from selenium.webdriver import ActionChains
-from selenium.webdriver.remote.webdriver import WebElement, WebDriver
+from selenium.webdriver.remote.webdriver import WebElement
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.support.ui import WebDriverWait
@@ -130,25 +131,28 @@ class Driver:
                 # sex_select.select = (text,男)
                 # todo: deselect
                 select = Select(ele)
-                res = result.select.strip("(")
-                res = res.strip(")")
-                arr = res.split(",")
-                if len(arr) == 2:
-                    if arr[0] == "index":
-                        select.select_by_index(arr[1])
+                res = re.findall("\((index|value|text),(\w{1,30}|\d{1,20})\)", result.select)
+                try:
+                    method, value = res[0]
+                    if method == "index":
+                        select.select_by_index(value)
                         return ele
-                    if arr[0] == "text":
-                        select.select_by_visible_text(arr[1])
+                    if method == "text":
+                        select.select_by_visible_text(value)
                         return ele
-                    if arr[0] == "value":
-                        select.select_by_value(arr[1])
+                    if method == "value":
+                        select.select_by_value(value)
                         return ele
-                else:
+                except ValueError:
                     raise ValueError("'{}',格式错误".format(result.select))
             if result.action == "iframe":
                 self.__driver.switch_to.frame(ele)
+                return ele
             if result.action == "js":
                 self.__driver.execute_script(result.js)
+                return ele
+            # if result.action == "drop":
+
         else:
             raise ValueError("{} is not Element".format(result.__class__))
 
@@ -191,8 +195,8 @@ class Driver:
     def web_driver(self):
         return self.__driver
 
+    def __enter__(self):
+        return self
 
-if __name__ == '__main__':
-    driver = Driver("firefox", "/home/amdins/桌面/geckodriver", os="linux")
-    driver.get("http://192.168.1.35:8080/DBShop")
-    driver.find_with_timeout("link_text", "登录").click()
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close()

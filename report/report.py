@@ -1,12 +1,13 @@
 import unittest
 
+from managers import config
 from report.HTMLTestReportCN import HTMLTestRunner
 
 
 class Report:
 
-    def __init__(self, path, pattern="*_test.py"):
-        self.cover = unittest.defaultTestLoader.discover(path, pattern=pattern)
+    def __init__(self, pattern="*_test.py"):
+        self.cover = unittest.defaultTestLoader.discover(config.report["file_url"], pattern=pattern)
         self.__title = "测试标题"
         self.__description = "测试描述"
         self.__tester = "测试人员"

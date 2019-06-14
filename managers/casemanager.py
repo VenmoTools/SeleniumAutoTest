@@ -87,7 +87,8 @@ class CaseManager:
                 porter.recv(packager.send())
                 # 注册porter
                 self.register_porter(porter)
-            except ValueError:
+            except KeyError as e:
+                print(e)
                 break
 
     def get_porter(self):

@@ -13,4 +13,5 @@ class Porter(BasePorter):
     def recv(self, data):
         if isinstance(data, Packages):
             self.all_packages.add(data)
-        raise ValueError("{0} is not packages", data.__class__)
+        else:
+            raise ValueError("{0} is not packages", data.__class__)

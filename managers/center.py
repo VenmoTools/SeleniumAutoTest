@@ -1,5 +1,6 @@
 from case.reader.excel import ExcelReader
 from execute.driverexecute import NormalExecutor
+from genator.report import GenTest
 from managers.casemanager import CaseManager
 from managers.executemanager import ExecuteManager
 from plugin.assertplugin import AssertPlugin

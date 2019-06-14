@@ -1,6 +1,7 @@
 import xlrd
 
 from case.reader.base import BaseReader
+from managers import config
 
 """
 {
@@ -23,9 +24,9 @@ class ExcelReader(BaseReader):
 
     """
 
-    def __init__(self, path):
-        self.path = path
-        self.work = xlrd.open_workbook(path)
+    def __init__(self):
+        self.path = config.case["url"]
+        self.work = xlrd.open_workbook(self.path)
         self.data = {}
 
     def set_name(self, name):
