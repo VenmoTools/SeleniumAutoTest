@@ -107,6 +107,20 @@ selenium = {
     "os": "linux", # 指定使用的操作系统，如果没有指定将使用当前系统
     "driver_path": "/home/amdins/桌面/geckodriver" # 驱动地址
 }
+# 配置存放测试脚本的路径
+report = {
+    "file_url": "/home/amdins/桌面/text"
+}
+# 配置存放测试用例的设置
+case = {
+    "type": "excel", # 设置读取用例类型
+    "url": "/home/amdins/桌面/SeleniumAutoTest/case.xlsx", # 如果是数据库该url为数据库链接地址
+}
+# 所有的插件名需要注册到plugins中
+plugins = [
+    "assertion"
+]
+
 ``` 
 
 ### 测试用例说明
