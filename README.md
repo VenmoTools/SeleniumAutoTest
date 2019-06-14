@@ -1,194 +1,192 @@
 # SeleniumAutoTest
 
-## 介绍
-该框架可以专注与写测试用例，将繁琐的编码工作统统干掉，使用插件式，可自定义插件，例如破解验证码，失败截图等
-测试用例写完后只需指定使用的插件和测试用例，便可自动测试，生成报告，发送邮件
+[中文请点击](Readmes/README.md)
 
-### 基本类及用途
-### 基本角色：
-用例：
-+ Reader： 读取数据的工具，可以指定文件或者数据库或者自定义
-+ Case: 一个元素的定位方式执行动作等（一个执行步骤）
-+ Process: 一系列执行步骤(根据id排序)
-+ Package: 运输的基本单元 用于将一个Process或者多个Process打包
-+ Packages: 所有Package的集合
-+ Packager: 负责将Case和Process结合并打包成Package形成Packages
-+ Porter： 负责从Packager取到数据送给CaseManager
-+ CaseManager： 负责从管理多个Porter和Packager
+## Introduction
+
+The framework can focus on and write test cases, the tedious coding work is all dry,
+can customize plug-ins, such as cracking verification codes, failed screenshots, etc.
+After the test case is written, you can automatically test, generate reports, 
+and send mail by simply specifying the plug-ins and test cases used
 
 
-执行：
-+ ExecuteCenter: 负责从CaseManager的搬运工手中获取Packages，并分发给Manager
-+ Manager： 将packages中的每一个package分配给已注册的Executor
-+ Executor: 负责将package解包获取Process并执行
-+ PluginCenter: 插件中心，负责插件的注册管理等
-+ Plugin：插件，将功能实现后注册到PluginCenter中，测试时将调用功能
+# Getting Started
 
-其他：   
-+ Generator:用于生成Test脚本
-+ Report:执行用例生成报告
-
-### 执行流程
-由Reader读取测试用例(db,file) -> 形成每个执行步骤(Case) -> 多个执行步骤形成流程(Process)
-
-Packager将Process打包（Package） -> 多个Package形成包集合(Packages，可扩展成异步操作，分布式操作)  
-
-由Porter（搬运工）将Packages运送到CaseManager中 -> 由Manager进行调度给命令执行中心（ExecutorCenter）
-
-ExecutorCenter进行解包分发给执行器 -> 各执行器执行分配给自己的任务
-
-
-
-## PageObject约定
-PageObject会根据测试用例自动生成xxx.ini文件，每次执行时都会清理
-
-
-1.所有section都是一个测试流程所需的元素
-
-2.所有元素命名方式:
-```
-元素名.method 表示该元素的定位方式
-元素名.value  表示该元素的定位的值
-```
-3.定位方式的写法
-```
-   "id"：id定位
-   "xpath"：xpath定位
-   "link_text" link的文字
-   "partial_link_text"：包含link的文字
-   "name"：元素name
-   "tag_name":元素标签名
-   "class_name": 类名
-   "css_selector": css选择器
-```
-4.元素名命名方式
-```
-命名：元素名_控件名
-    元素的含义例如用户名，密码等含义使用驼峰命名
-例如
-    输入框：
-         元素名_input:
-               用户名输入框-> user_input
-               密码输入框  -> pwd_input
-               关键词搜索输入框  -> kw_search_input
-    复选框:
-         元素名_checkbox:
-               自动登录复选框 -> autoLogin_checkbox
-```
-5.元素的行为
-每个元素都会赋予一定的行为
-
-按钮行为可以是点击，可以是拖动
-
-输入框可以是点击，可以是输入
-
-```
-完整命名方式:
-    元素名_控件名.action = 行为
-例如:
-    密码输入框
-    registerPassword_input.method=id
-    registerPassword_input.value=user_password
-    registerPassword_input.action=send_keys
-    registerPassword_input.input_value=123456
-```
-
-## 配置说明
-配置文件放在managers/config.py
-
-```python
-# 设置缓存文件的路径
-url = {
-    "page_object_file_path": "./"
-}
-# 配置selenium
-selenium = {
-    "browser": "firefox",# 指定使用的浏览器
-    "os": "linux", # 指定使用的操作系统，如果没有指定将使用当前系统
-    "driver_path": "/home/amdins/桌面/geckodriver" # 驱动地址
-}
-# 配置存放测试脚本的路径
-report = {
-    "file_url": "/home/amdins/桌面/text"
-}
-# 配置存放测试用例的设置
-case = {
-    "type": "excel", # 设置读取用例类型
-    "url": "/home/amdins/桌面/SeleniumAutoTest/case.xlsx", # 如果是数据库该url为数据库链接地址
-}
-# 所有的插件名需要注册到plugins中
-plugins = [
-    "assertion"
-]
-
-``` 
-
-### 测试用例说明
-测试用例暂时只支持excel,不过可以自己增加读取方式
-
-用例说明：
-
-|编号|描述|生成的元素名称|元素类别|定位方式|定位值|动作|输入值|等待方式|等待时间|执行动作|使用插件|断言条件|
-|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
-|1|登录链接跳转|loginLink|按钮|link_text|登录|点击|不等待|0|null|null|assertion:B,screen:B|contains(title,'登录')|
-
-####  插件
-
-填写插件名，以逗号分割,需要指定什么时候执行B表示在执行测试用例之前执行，A表示在执行测试用例之后执行
- 
-不是使用插件可以置空或者为null
- 
-#### 断言方式:
-
-断言使用断言插件完成，断言方式可自定义
-
-#### 执行动作
-执行动作表示浏览器要执行的动作,滚动条操作，窗口切换等（暂未完成）
-
-#### 动作(元素动作)
-元素动作如下：
-1. 点击 （）
-2. 输入（需要在输入值写入输入的内容）
-3. 选择（选择框，输入值需要在输入值写入内容eg： (text,男)，表示使用text方式选择值为男的选项）
-4. js（要执行的js代码需要在输入值写入输入的内容）
-5. iframe（切换iframe，默认的值为change）
-
-todo: clear,submit,
-
-## 使用方式
-### 基本使用
 ```python
 from case.reader.excel import ExcelReader
 from execute.driverexecute import NormalExecutor
-from managers.manager import Manager
 from plugin.assertplugin import AssertPlugin
+from report.Runner import Run
+from report.report import Report
 
 if __name__ == '__main__':
-    # 指定读取的Reader
-    r = ExcelReader("/home/amdins/桌面/teach/seleniums/selenium/case.xlsx")
-    man = Manager()
-    # 使用指定的Reader
-    man.select_reader(r)
-    # 使用默认的执行器
-    man.register_executor(NormalExecutor())
-    # 注册所使用的插件
-    man.register_plugin(AssertPlugin("assertion"))
-    # 解析
-    man.porking()
-    # 执行
-    man.get_execute().run_by_name("case")
+    r = Run()
+    r.add_executor(NormalExecutor())
+    r.add_plugin(AssertPlugin("assertion"))
+    r.add_reader(ExcelReader())
+    r.generator_file("case")
+    report = Report()
+    report.start()
+```
+# Basic class and use 
+
++ Reader: A tool for reading data, you can specify a file or database or customize
++ Case: The positioning method of an element performs actions, etc. (one execution step)
++ Process: A series of execution steps (sorted by id)
++ Package: The basic unit of transportation is used to package a Process or multiple Processes
++ Packages: Collection of all packages
++ Packager: Responsible for combining Case and Process into Packages to form Packages
++ Porter: Responsible for fetching data from Packager to CaseManager
++ CaseManager: Responsible for managing multiple Porters and Packagers
++ ExecuteCenter: Responsible for obtaining Packages from CaseManager's porters and distributing them to Manager
++ Manager: Assign each package in packages to a registered Executor
++ Executor: Responsible for unpacking the package to get Process and execute
++ PluginCenter: Plugin Center, responsible for plugin registration management, etc.
++ Plugin: Plugin, register the function to PluginCenter after the function is implemented, and call the function when testing
++ Generator: used to generate Test scripts
++ Report: Execute use case generation report
+
+# Implementation process
+
+Read the test case (db, file) by Reader -> Form each execution step (Case) -> Multiple execution steps to form the process (Process)
+
+Packager Packages Process -> Multiple Packages Form Packages (Packages, Scalable to Asynchronous Operations, Distributed Operations)
+
+Shipment of Packages to CaseManager by Porter -> Scheduled by Manager to Command Execution Center (ExecutorCenter)
+
+ExecutorCenter unpacks and distributes to the executor -> each executor performs the task assigned to itself
+
+# Dependent library
+1. PIL 
+2. pytesseract
+3. matplotlib
+4. opencv
+5. selenium
+
+# PageObject syntax convention
+PageObject will automatically generate xxx.ini files based on test cases, which will be cleaned each time it is executed.
+
+
+1.All sections are elements required for a test flow
+
+2.All elements are named:
+```
+elementName.method -> indicates how the element is positioned
+elementName.value  -> represents the value of the element's position
+```
+3.Elemental positioning
+```
+"id": id targeting
+"xpath": xpath targeting
+"link_text" link text
+"partial_link_text": text containing link
+"name": element name
+"tag_name": element tag name
+"class_name": class name
+"css_selector": css selector
+```
+4.Element name naming
+```
+Name: 
+     elementName_controlName
+     The meaning of the elements such as username, password, etc. are named using a camel
+     
+E.g:
+     Input box:
+          ElementName _input:
+                Username input box -> user_input
+                Password input box -> pwd_input
+                Keyword search input box -> kw_search_input
+     Checkbox:
+          ElementName _checkbox:
+                Automatic login checkbox -> autoLogin_checkbox     
+```
+5.Elemental behavior
+
+Each element gives a certain behavior
+
+Button behavior can be click, can be drag
+
+The input box can be a click, it can be an input
+
+```
+Complete naming:
+     Element name_control name.action = behavior
+E.g:
+     Password input box
+     registerPassword_input.method=id
+     registerPassword_input.value=user_password
+     registerPassword_input.action=send_keys
+     registerPassword_input.input_value=123456
+```
+# Configuration instructions
+
+The configuration file is placed in managers/config.py
+
+```python
+
+# Set the path to the cache file
+url = {
+    "page_object_file_path": "./"
+}
+#  Configure selenium
+selenium = {
+    "browser": "firefox",# specifies the browser to use
+    "os": "linux", # specifies the operating system to be used, if not specified, the current system will be used.
+    "driver_path": "/home/amdins/桌面/geckodriver" # Browser driver address
+}
+# Configure the path to store test scripts
+report = {
+    "file_url": "/home/amdins/桌面/text"
+}
+# Configure settings for storing test cases
+case = {
+    "type": "excel", # set the read case type
+    "url": "/home/amdins/桌面/SeleniumAutoTest/case.xlsx", #  If it is a database, the url is the database link address
+}
+# All plugin names need to be registered in the plugins
+plugins = [
+    "assertion"
+]
 ```
 
-### 自定义插件
+# Test case description
+Test cases only support excel for the time being, but you can increase the reading method yourself.
 
-注意：
-断言插件默认已经被注册，名称为assertion
+Use case description:
 
-可以指定插件在什么时刻执行
+|id|description|Generated element name|Element category|Targeting|Positioning value|action|input value|Waiting mode|waiting time|Execution action|Using plugins|Assertion condition|
+|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
+|1|Login link jump|loginLink|button|link_text|login|click|notWaiting|0|null|null|assertion:B,screen:B|contains(title|none|::'LoginPage')|
 
-例如：
-在测试用例之前执行：assertion:B (before)
-在测试用例之后执行：assertion:A (After)
+# Plugin
+Fill in the plugin name, separated by commas, you need to specify when to execute B to execute before executing the test case, and A to execute after executing the test case.
+ 
+Not using a plugin can be empty or null
+
+# Assertion mode
+Assertions are done using the assertion plugin, and the assertion mode is customizable
+
+# Action (element action)
+
+The element actions are as follows:
+1. Click (click on the element)
+2. Input (need to write the input value in the input value)
+3. Select (select the box, enter the value you need to write the content in the input value eg: (text, male), indicating that the option to use the text mode to select the value of male)
+4. js (js code to be executed needs to write the input content in the input value)
+5. iframe (switch iframe, the default value is change)
+
+# Custom plugin
+
+note:
+Assertion plugin is already registered by default, the name is assertion
+
+Can specify when the plugin is executing
+
+E.g:
+Execute before the test case: assertion: B (before)
+Execute after the test case: assertion: A (After)
+
 
 ```python
 from plugin.base import BasePlugin
@@ -198,102 +196,100 @@ class ScreenPlugin(BasePlugin):
 
     def start(self, driver,case):
         """
-            driver为webdriver对象
-            case为当前执行的case
+            Driver for webdriver object
+            Case is the current execution case
         """
         if case.assertion not in driver.page_source:
             raise Assertion()
 ```
+# Assertion plugin introduction
 
-## 断言插件使用
+Assertion plugin throws AssertionError() when assertion fails
 
-断言插件在断言失败时会抛出AssertionError()
+## grammars
 
-语法：
-
-### 断言关键字 
-1. contains(包含)
-2. exist(存在,待完成)
-3. is(是否一致)
-4. true(结果是否为True)
-5. false(结果是否为False)
-6. enable(元素是否可用)
-7. display(元素是否可见)
-8. selected(元素是否被选中)
-9. notnull(不为空)
-
-#### 语法
-is(内容<可以是文本也可以是元素执行动作>::'断言值')
-
-### 元素关键字
-+ title:断言浏览器title值
-+ element: 获取元素
-+ element_is: 判断元素类型
-+ element_attr： 获取元素值
-+ element_property: 获取元素属性
-+ element_text: 获取元素文本信息
-
-+ js: 执行js
+### Assertive keyword
+1. contains
+2. exist (to be completed)
+3. is (consistent)
+4. true (whether the result is True)
+5. false (whether the result is False)
+6. enable (the element is available)
+7. display (the element is visible)
+8. selected (whether the element is selected)
+9. notnull (not empty)
 
 
-### 元素语法
-#### 获取网页标题
+### Usage
+Is (content <can be text or element execution action>:: 'assertion value')
 
-title
+Element keyword
++ title: assert the browser title value
++ element: get the element
++ element_is: determine the element type
++ element_attr: get the element value
++ element_property: get the element attribute
++ element_text: get the element text information
++ js: execute javascript command
 
-#### 获取元素属性值
-使用反引号'`'
+### Elemental grammar
+#### Get the page title
+
+Title
+
+#### Get element attribute values
+Use back quotation marks '`'
 ```
-element_attr|`定位方式`,`定位值`,`属性名`|
+element_attr|`location method`, `location value`, `property name`|
 
 ```
-例如：
+E.g:
 ```
 element_attr|`id`,`username`,`data`|
 ```
 
-#### 获取元素属性
-使用反引号'`'
+#### Get element properties
+Use back quotation marks '`'
 ```
-element_property|`定位方式`,`定位值`,`属性名`|
+element_property|`location method`, `location value`, `property name`|
 
 ```
-例如：
+E.g:
 ```
 element_property|`id`,`username`,`data`|
 ```
-#### 执行js代码
+#### Executing js code
 
 ```
 js|alter('hello')|
 ```
 
-### 例子
+### Example
 
-#### 断言元素值
+#### Assertion element value
 ```html
-<a class="big">你好</a>
+<a class="big">hello</a>
 ```
 ```
-is(element_attr|`class`,`.big`|::'你好')
+is(element_text|`class`,`.big`|::'hello')
 ```
 
-#### 断言元素属性
+#### Assertion element attribute
 ```html
-<a class="big" data="1">你好</a>
+<a class="big" data="1">hello</a>
 ```
 ```
 is(element_attr|`class`,`.big`,`data`|::'1')
 
 ```
 
-#### 断言js执行结果
+#### Assert javascript command execution result
 
 ```
 <div id="best-content" accuse="aContent" class="best-text mb-10">
     <div class="wgt-best-mask">
         <div class="wgt-best-showbtn">
-        展开全部<span class="wgt-best-arrowdown"></span>
+        show all<span class="wgt-best-arrowdown"></span>
         </div>
     </div>
     hello world
@@ -305,38 +301,39 @@ is(element_attr|`class`,`.big`,`data`|::'1')
 is(js|`return document.getElementById("best-content").innerText;`|::'hello world')
 ```
 
-## 测试报告
-实现原理:
-根据测试用例生成xx_test.py文件,然后使用unittest的testLoader,结合TestRunner实现
+## testing report
+Implementation principle:
+Generate xx_test.py file according to test case, then use unittest's testLoader, combined with TestRunner
+
 
 ```python
-unittest.defaultTestLoader.discover("路径", pattern="*_test.py")
+cover = unittest.defaultTestLoader.discover("<path>", pattern="*_test.py")
 with open("result.html", 'wb') as f:
-    HTMLTestRunner(title=self.__title, description=self.__description,
-                   tester=self.__tester,
-                   stream=f).run(self.cover)
+    HTMLTestRunner(title="name of test", description="case description",
+                   tester="who test",
+                   stream=f).run(cover)
 ```
 
-#### 使用
+## Script generator usage
 ```python
 from case.reader.excel import ExcelReader
 from execute.driverexecute import NormalExecutor
 from plugin.assertplugin import AssertPlugin
 from report.Runner import Run
-# 生成器
+# generator
 r = Run()
-# 注册执行器
+# register executor
 r.add_executor(NormalExecutor())
-# 注册插件
+# register plugin
 r.add_plugin(AssertPlugin("assertion"))
-# 注册Reader
+# register Reader
 r.add_reader(ExcelReader())
-# 生成文件
+# generate file
 r.generator_file("case")
 
 ```
 
-#### 生成效果
+#### Generate Result
 ```python
 import unittest
 from managers.manager import Manager
@@ -359,17 +356,16 @@ class case(unittest.TestCase):
 ```
 
 
-## TODO
-
-- [x] 框架骨架
-- [x] 插件支持
-- [x] 丰富元素动作
-- [x] 断言插件
-- [x] 测试报告生成(待完善)
-- [ ] 邮件支持
-- [ ] 丰富插件
-- [ ] 异步执行 
-- [ ] 丰富浏览器行为
-- [ ] 从数据库读取测试用例
-- [ ] 远程测试支持
-- [ ] 作为Docker服务
+# TODO List
+- [x] frame skeleton
+- [x] plugin support
+- [x] rich element action
+- [x] assertion plugin
+- [x] Test report generation (to be improved)
+- [ ] Email support
+- [ ] Rich plugin
+- [ ] Asynchronous execution
+- [ ] Rich browser behavior
+- [ ] Read test cases from the database
+- [ ] Remote test support
+- [ ] as a Docker service

@@ -10,5 +10,4 @@ class BasePlugin:
         :param case:  当前执行的case
         :return:
         """
-        if driver is not None:
-            raise NotImplementedError()
+        raise NotImplementedError()
