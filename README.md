@@ -369,3 +369,5 @@ class case(unittest.TestCase):
 - [ ] Read test cases from the database
 - [ ] Remote test support
 - [ ] as a Docker service
+
+# Forgive me for using google translation
