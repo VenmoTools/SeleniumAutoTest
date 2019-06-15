@@ -363,9 +363,9 @@ class case(unittest.TestCase):
 - [x] assertion plugin
 - [x] Test report generation (to be improved)
 - [ ] Email support
-- [ ] Rich plugin
+- [ ] More plugin
 - [ ] Asynchronous execution
-- [ ] Rich browser behavior
+- [ ] More browser behavior
 - [ ] Read test cases from the database
 - [ ] Remote test support
 - [ ] as a Docker service

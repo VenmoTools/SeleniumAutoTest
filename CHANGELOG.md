@@ -12,3 +12,4 @@
 2. 优化packages操作
 3. 修复生成unittest中Case函数名字无法生成
 4. 指定Reader后会生成一个temp.file文件来获取测试流程名
+5. 优化断言插件

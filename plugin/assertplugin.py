@@ -1,10 +1,6 @@
 import re
-import time
 
 from selenium.webdriver.remote.webelement import WebElement
-
-from execute import WebDriver
-from managers import config
 from plugin.base import BasePlugin
 
 
@@ -43,24 +39,8 @@ class AssertPlugin(BasePlugin):
             raise ValueError("表达式语法错误: {}".format(data))
         result_data = self.__parser(ele, methods)
 
-        if checks == "is":
-            self.is_check(except_data, result_data)
-        if checks == "contains":
-            self.contains_check(except_data, result_data)
-        if checks == "exist":
-            self.exist_check(except_data, result_data)
-        if checks == "true":
-            self.true_check(except_data, result_data)
-        if checks == "false":
-            self.false_check(except_data, result_data)
-        if checks == "enable":
-            self.enable_check(except_data, result_data)
-        if checks == "display":
-            self.display_check(except_data, result_data)
-        if checks == "selected":
-            self.selected_check(except_data, result_data)
-        if checks == "notnull":
-            self.notnull_check(except_data, result_data)
+        func = self.__getattribute__(checks + "_check")
+        func(except_data, result_data)
 
     def notnull_check(self, except_data, result_data):
         if result_data is None:
@@ -141,17 +121,13 @@ class AssertPlugin(BasePlugin):
         # 处理title
         # is(title||::value)
         if ele == "title":
-            title = self.title()
-            # assert value title
-            return
-
+            return self.title()
         # 处理js
         if ele == "js":
             res = re.findall("`(.+?)`", methods)
             if len(res) != 1:
                 raise ValueError("表达式语法错误: {}".format(data))
-            self.js(res[0])
-            return
+            return self.js(res[0])
 
         #  `class`,`.big`,`data`
         res = re.findall("`(.+?)`,`(.+?)`,`(.+?)`", methods)
@@ -162,19 +138,10 @@ class AssertPlugin(BasePlugin):
         except ValueError:
             raise ValueError("表达式语法错误: {}".format(methods))
 
-        if ele == "element_attr":
-            return self.element_attr(local_method, local_value, find_value)
+        func = self.__getattribute__(ele)
+        return func(local_method, local_value, find_value)
 
-        if ele == "element_is":
-            return self.element_is(local_method, local_value)
-
-        if ele == "element_property":
-            return self.element_property(local_method, local_value, find_value)
-
-        if ele == "element_text":
-            return self.element_text(local_method, local_value)
-
-    def element_is(self, local_method, local_value):
+    def element_is(self, local_method, local_value, find_value):
         return self.driver.find_with_timeout(local_method, local_value).tag_name
 
     def element(self, local_method, local_value):
@@ -187,7 +154,7 @@ class AssertPlugin(BasePlugin):
         cmd = cmd[:len(cmd) - 2]
         return self.driver.web_driver.execute_script(cmd)
 
-    def element_text(self, local_method, local_value):
+    def element_text(self, local_method, local_value, value):
         return self.driver.find_with_timeout(local_method, local_value).text
 
     def title(self):
@@ -198,18 +165,6 @@ class AssertPlugin(BasePlugin):
 
 
 if __name__ == '__main__':
-    # data = "is(element_is|`class`,`.big`,`data`|::'1')"
-    # data = "is (title |none|::'value')"
-    #
     data = "is(js|`return document.title;')`|::'value')"
-
-    # data = "is(js|`document.getElementById('best-content-2372143409').innerText`|::'value')"
-    # contents = re.findall("(is|contains|exist|true|false|enable|display|selected|notnull)\((.+'\)$)", data)
-    # print(contents)
-    #
-    with WebDriver.Driver(os="linux") as driver:
-        driver.start("firefox", config.selenium["driver_path"])
-        driver.get("https://zhidao.baidu.com/question/1509666971098572500.html")
-        time.sleep(1)
-        a = AssertPlugin("assertion")
-        a.start(driver, data)
+    a = AssertPlugin("assertion")
+    a.parser(data)
