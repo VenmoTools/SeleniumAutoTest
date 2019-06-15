@@ -6,3 +6,9 @@
 1. 添加断言插件
 2. 添加脚本生成功能
 3. 添加测试报告生成功能
+
+# Version 1.1.2
+1. 优化ExcelReader读取用例
+2. 优化packages操作
+3. 修复生成unittest中Case函数名字无法生成
+4. 指定Reader后会生成一个temp.file文件来获取测试流程名

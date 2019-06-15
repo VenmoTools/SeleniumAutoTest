@@ -13,6 +13,7 @@ class Packages:
     def add_package(self, package):
         if isinstance(package, BasePackage) and package is not None:
             if package.id != "" and package.name != "":
+                # 生成信息 package_id ：package_name
                 self.info[package.id] = package.name
                 self.revers[package.name] = package.id
             else:
@@ -22,6 +23,28 @@ class Packages:
             self.man[package.id] = self.__packages
             return 0
         return -1
+
+    def __getitem__(self, item):
+        """
+        根据id获取对应的name
+        :param item:
+        :return:
+        """
+        # 如果长度为40表示使用id来获取
+        if len(item) == 40:
+            return self.info[item]
+        # 如果不是则使用name来获取
+        return self.revers[item]
+
+    def __contains__(self, item):
+        # 如果长度为40表示使用id来获取
+        if len(item) == 40:
+            return item in self.info
+        # 如果不是则使用name来获取
+        return item in self.revers
+
+    def __missing__(self, key):
+        return "No such key {}".format(key)
 
     def reset_index(self):
         self.__index = 0

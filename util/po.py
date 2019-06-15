@@ -29,7 +29,6 @@ class PageObject:
         if action_method == "send_keys":
             return Result(self.current_section[method], self.current_section[value], self.current_section[action],
                           self.current_section[inputs])
-
         return Result(self.current_section[method], self.current_section[value], self.current_section[action])
 
 

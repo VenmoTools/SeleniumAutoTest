@@ -14,7 +14,8 @@ report = {
 
 case = {
     "type": "excel",
-    "url": "/home/amdins/桌面/SeleniumAutoTest/case.xlsx",
+    "url": "/Users/venmosnake/Documents/SeleniumAutoTest/case.xlsx",
+    "case_info": "/Users/venmosnake/Documents/SeleniumAutoTest/"  # 生成的case信息文件路径
 }
 
 plugins = [

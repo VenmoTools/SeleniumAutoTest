@@ -28,3 +28,4 @@ class Processor:
 
     def ordered(self):
         self.sources.sort(key=lambda case: int(case.id), reverse=False)
+        return self

@@ -76,7 +76,7 @@ class ExecuteCenter:
 
 
 if __name__ == '__main__':
-    r = ExcelReader("/home/amdins/桌面/teach/seleniums/selenium/case.xlsx")
+    r = ExcelReader()
     man = CaseManager()
     man.register_reader(r)
     man.register_packager(ProcessPackager())

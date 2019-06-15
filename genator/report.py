@@ -9,6 +9,9 @@
 
 
 """
+import os
+
+from managers import config
 
 
 class GenMethod:
@@ -75,7 +78,10 @@ class GenClass:
         self.methods = []
 
     def set_name(self, name):
-        self.class_name = name
+        if "Test" in name:
+            self.class_name = name
+        else:
+            self.class_name = "Test{}".format(name)
 
     def add_class_var(self, var):
         self.class_var.append(var)
@@ -193,7 +199,8 @@ class GenTest:
         return template.format(packages, mod, classs)
 
     def save_file(self, filename):
-        with open(filename, "w", encoding="utf8") as f:
+        pa = os.path.join(config.report["file_url"], filename)
+        with open(pa, "w", encoding="utf8") as f:
             f.write(self.gen())
 
 

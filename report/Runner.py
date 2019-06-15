@@ -1,9 +1,10 @@
+import os
 import re
 
 from case.reader.excel import ExcelReader
 from execute.driverexecute import NormalExecutor
 from genator.report import GenTest
-from plugin.assertplugin import AssertPlugin
+from managers import config
 
 
 class Run:
@@ -21,6 +22,14 @@ class Run:
             "Executor": [],
             "Plugin": [],
         }
+        self.case = []
+        self.read_file()
+
+    def read_file(self):
+        pa = os.path.join(config.case["case_info"], "temp.file")
+        with open(pa, "r", encoding="utf8") as  f:
+            for x in f.readlines():
+                self.case.extend(x.split("|"))
 
     def add_reader(self, reader):
         self.collection["Reader"].append(self.__get_meta(reader))
@@ -71,17 +80,20 @@ class Run:
         self.__gen_executor(gen)
         self.__gen_plugin(gen)
         gen.add_mod_var(self.execute)
-        names = "Test"
-        gen.add_test_case(content=self.content.format(names), name=names)
-        gen.save_file(names + "_test.py")
+        for case in self.case:
+            gen.add_test_case(content=self.content.format(case), name=self.to_first_up(case))
+        gen.save_file(name + "_test.py")
+
+    def to_first_up(self, words):
+        word = words[1:]
+        res = words[:1].upper() + word
+        return res
 
 
 if __name__ == '__main__':
     e = NormalExecutor()
-    p = AssertPlugin("assertion")
     d = ExcelReader()
     r = Run()
     r.add_executor(e)
-    r.add_plugin(p)
     r.add_reader(d)
     r.generator_file("Case")

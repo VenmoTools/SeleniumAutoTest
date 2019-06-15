@@ -10,10 +10,13 @@ from util.processor.process import Processor
 
 
 class ProcessPackage(BasePackage):
+    """
+    一个package存放一个Process
+    """
 
     def gen_id(self):
         now = time.time().hex().encode("utf8")
-        self.id = sha1(now).hexdigest()
+        self.__id = sha1(now).hexdigest()
 
     def __init__(self, name):
         super().__init__(name)
@@ -139,3 +142,9 @@ class GenPo:
                     # []
                     res = re.findall("\[[\w]{0,50}\]", line)
                     self.exist.append("".join(res).strip("[").strip("]"))
+
+
+if __name__ == '__main__':
+    now = time.time().hex().encode("utf8")
+    res = sha1(now).hexdigest()
+    print(len(res))

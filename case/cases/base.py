@@ -11,6 +11,9 @@ class BaseCase(metaclass=ABCMeta):
 
     def __init__(self):
         # 编号	描述	生成的元素名称	元素类别	定位方式	定位值	动作	输入值	等待方式	等待时间 执行动作
+        """
+        属性顺序必须与Excel中字段顺序的一致
+        """
         self.id = "1"
         self.desc = ""
         self.element_name = ""
@@ -27,3 +30,6 @@ class BaseCase(metaclass=ABCMeta):
 
     def inject(self, data):
         raise NotImplementedError()
+
+    def __str__(self):
+        return "{}".format(self.__dict__)
