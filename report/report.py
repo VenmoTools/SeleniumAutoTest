@@ -1,5 +1,7 @@
+import re
 import unittest
 
+from emailcenter.smtp import STMPSender, email_template
 from managers import config
 from report.HTMLTestReportCN import HTMLTestRunner
 
@@ -38,6 +40,20 @@ class Report:
 
     def start(self):
         # close
+        sender = STMPSender()
+        with open("result.html") as f:
+            res = "".join(f.readlines()[:130])
+            title = re.findall('<h1 style="font-family: Microsoft YaHei">(.+?)</h1>', res)
+            print(res)
+            man = re.findall("<p .*测试人员.*> ([\w\d]+?)</p>", res)
+            time = re.findall("<p .*>开始时间.*> (.+?)</p>", res)
+            cost = re.findall("<p .*>合计耗时.*> (.+?)</p>", res)
+            result = re.findall("<p .*>测试结果.*> 共 (\d+?)，通过 (\d+?)，通过率= (.+?)%</p>", res)
+            total, succeed, passed = result[0]
+            res = email_template.format(title[0], "", total, succeed, passed, time[0], cost[0], man[0])
+            sender.build_email(res)
+            sender.send_with_tls()
+
         with open("result.html", 'wb') as f:
             HTMLTestRunner(title=self.__title, description=self.__description,
                            tester=self.__tester,

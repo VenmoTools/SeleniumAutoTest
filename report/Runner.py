@@ -27,7 +27,7 @@ class Run:
 
     def read_file(self):
         pa = os.path.join(config.case["case_info"], "temp.file")
-        with open(pa, "r", encoding="utf8") as  f:
+        with open(pa, "r", encoding="utf8") as f:
             for x in f.readlines():
                 self.case.extend(x.split("|"))
 

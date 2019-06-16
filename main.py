@@ -16,4 +16,3 @@ if __name__ == '__main__':
     r.generator_file("case")
     report = Report()
     report.start()
-

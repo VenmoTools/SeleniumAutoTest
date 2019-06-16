@@ -5,10 +5,8 @@ class BasePackage(metaclass=ABCMeta):
 
     def __init__(self, name):
         self.__name = name
-        self.__id = ""
+        self.__id = "0" * 40
         self.names = []
-
-
 
     @property
     def id(self):
