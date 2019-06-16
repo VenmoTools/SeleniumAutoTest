@@ -1,3 +1,5 @@
+from hashlib import sha1
+
 from util.package.base import BasePackage
 
 
@@ -9,6 +11,7 @@ class Packages:
         self.info = {}
         self.revers = {}
         self.man = {}
+        self.id = "0" * 40
 
     def add_package(self, package):
         if isinstance(package, BasePackage) and package is not None:
@@ -23,6 +26,9 @@ class Packages:
             self.man[package.id] = self.__packages
             return 0
         return -1
+
+    def __id(self):
+        self.id = sha1(self.__packages).hexdigest()
 
     def __getitem__(self, item):
         """
@@ -50,13 +56,14 @@ class Packages:
         self.__index = 0
 
     def all_packages(self):
+        self.__id()
         return self.__packages
 
     def get_package_by_name(self, name):
         return self.man[self.revers[name]]
 
     def __len__(self):
-        return self.__packages
+        return len(self.__packages)
 
     def __iter__(self):
         return self

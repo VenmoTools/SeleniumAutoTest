@@ -1,25 +1,11 @@
 import os
+import pickle
 
 import xlrd
-
 from case.cases.base import BaseCase
 from case.reader.base import BaseReader
 from managers import config
 from util.processor.CaseProcess import CaseProcessor
-
-"""
-Version: 1.1.1
-{
-    "package_name":"", #一个流程名
-    "cases":[
-        "name":[
-            {},
-            {}
-        ],
-    ]
-}
-
-"""
 
 
 class ExcelReader(BaseReader):
@@ -61,17 +47,6 @@ class ExcelReader(BaseReader):
             processes.append(self.__read(sheet))
         return processes
 
-    # def read(self):
-    #     step = []
-    #     self.set_name(self.get_file_name())
-    #     for name in self.work.sheet_names():
-    #         data = {}
-    #         sheet = self.work.sheet_by_name(name)
-    #         data[name] = self.read_one(sheet)
-    #         step.append(data)
-    #     self.data["cases"] = step
-    #     return self.data
-
     def __read(self, sheet):
         # 生成的流程
         process = CaseProcessor(sheet.name)
@@ -87,34 +62,10 @@ class ExcelReader(BaseReader):
             process.add_case(case)
         return process.ordered()
 
-    # def read_one(self, sheet):
-    #     """
-    #     每一个step必须要与定义的case属性名一致
-    #     :param sheet:
-    #     :return:
-    #     """
-    #     res = []
-    #     for i in range(1, sheet.nrows):
-    #         data = {"id": sheet.cell_value(rowx=i, colx=0),
-    #                 "desc": sheet.cell_value(rowx=i, colx=1),
-    #                 "element_name": sheet.cell_value(rowx=i, colx=2),
-    #                 "element_type": sheet.cell_value(rowx=i, colx=3),
-    #                 "method": sheet.cell_value(rowx=i, colx=4),
-    #                 "value": sheet.cell_value(rowx=i, colx=5),
-    #                 "action": sheet.cell_value(rowx=i, colx=6),
-    #                 "input": sheet.cell_value(rowx=i, colx=7),
-    #                 "wait_method": sheet.cell_value(rowx=i, colx=8),
-    #                 "wait_time": sheet.cell_value(rowx=i, colx=9),
-    #                 "execute_action": sheet.cell_value(rowx=i, colx=10),
-    #                 "plugins": sheet.cell_value(rowx=i, colx=11),
-    #                 "assertion": sheet.cell_value(rowx=i, colx=12)
-    #                 }
-    #         res.append(data)
-    #     return res
-
 
 if __name__ == '__main__':
     res = ExcelReader().read()
-    for x in res:
-        for c in x:
-            print(c)
+    res = pickle.dumps(res)
+    print(isinstance(res,bytes))
+    c = pickle.loads(res)
+    print(c)

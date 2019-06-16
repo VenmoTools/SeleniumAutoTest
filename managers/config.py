@@ -43,7 +43,10 @@ case = {
     "type": "excel",
     # 文件路径或者db的uri
     "url": "/Users/venmosnake/Documents/SeleniumAutoTest/case.xlsx",
-    "case_info": "/Users/venmosnake/Documents/SeleniumAutoTest/"  # 生成的case信息文件路径
+    "case_info": "/Users/venmosnake/Documents/SeleniumAutoTest/",  # 生成的case信息文件路径
+    "serialize_packages": True,
+    "serialize_path": "./",
+
 }
 
 # 注册的插件
