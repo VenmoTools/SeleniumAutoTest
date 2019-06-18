@@ -361,7 +361,7 @@ class case(unittest.TestCase):
 
 ```
 ## 版本
-[](CHANGELOG.md)
+[历史版本查看](CHANGELOG.md)
 
 ## TODO
 
