@@ -139,7 +139,8 @@ plugins = [
 
 |编号|描述|生成的元素名称|元素类别|定位方式|定位值|动作|输入值|等待方式|等待时间|执行动作|使用插件|断言条件|
 |:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
-|1|登录链接跳转|loginLink|按钮|link_text|登录|点击|不等待|0|null|null|assertion:B,screen:B|contains(title|none|::'登录')|
+|5|播放歌曲|playSong|按钮|xpath|//a[@title='播放']|点击	|不等待|0|assertion:A|is(element_text|\`xpath\`,\`//em[contains(text(),'我爱的人走了')]\`|::'我爱的人走了')
+
 
 ####  插件
 
