@@ -3,10 +3,12 @@ import socket
 import ssl
 
 from emailcenter import center
-from managers import config
+import config
 
-with open("emailcenter/file.temp") as f:
-    email_template = "".join(f.readlines())
+email_template = ""
+if config.email["use_email"]:
+    with open("emailcenter/file.temp") as f:
+        email_template = "".join(f.readlines())
 
 
 class STMPSender:

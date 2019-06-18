@@ -2,6 +2,8 @@ class BasePlugin:
 
     def __init__(self, name):
         self.name = name
+        self.index = 1
+        self.driver = None
 
     def start(self, driver,case):
         """

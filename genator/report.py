@@ -11,7 +11,7 @@
 """
 import os
 
-from managers import config
+import config
 
 
 class GenMethod:
@@ -200,6 +200,8 @@ class GenTest:
 
     def save_file(self, filename):
         pa = os.path.join(config.report["file_url"], filename)
+        if not os.path.exists(config.report["file_url"]):
+            os.mkdir(config.report["file_url"])
         with open(pa, "w", encoding="utf8") as f:
             f.write(self.gen())
 

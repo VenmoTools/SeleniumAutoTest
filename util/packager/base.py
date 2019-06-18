@@ -1,4 +1,4 @@
-from managers import config
+import config
 from util.package.packages import Packages
 
 

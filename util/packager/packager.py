@@ -1,10 +1,10 @@
 import os
 import pickle
 
+import config
 from case.reader.base import BaseReader
 from case.reader.excel import ExcelReader
 from exception.exception import EmptyPackagesError, NoSuchReaderError
-from managers import config
 from util.package.package import ProcessPackage
 from util.packager.base import BasePackager
 
@@ -54,8 +54,12 @@ class ProcessPackager(BasePackager):
             raise ValueError("Reader is None!")
 
     def save_to_file(self):
-        p = os.path.join(config.case["serialize_path"], "{}.pkl".format(self.packages.id))
-        with open(p, "wb") as f:
+        self.packages.gen_id()
+        p = os.path.join(config.case["serialize_path"], "serialized")
+        if not os.path.exists(p):
+            os.mkdir("serialized")
+        path = os.path.join(p, "{}.pkl".format(self.packages.id))
+        with open(path, "wb") as f:
             pickle.dump(self.packages, f)
 
 

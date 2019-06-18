@@ -27,8 +27,9 @@ class Packages:
             return 0
         return -1
 
-    def __id(self):
-        self.id = sha1(self.__packages).hexdigest()
+    def gen_id(self):
+        strs = "{}".format(self.__packages.__class__)
+        self.id = sha1(strs.encode("utf8")).hexdigest()
 
     def __getitem__(self, item):
         """
@@ -56,7 +57,8 @@ class Packages:
         self.__index = 0
 
     def all_packages(self):
-        self.__id()
+        if self.id == "0" * 40:
+            self.gen_id()
         return self.__packages
 
     def get_package_by_name(self, name):

@@ -1,6 +1,12 @@
+import os
+
+# 当前文件路径
+current_path = os.path.dirname(__file__)
+
 url = {
     # 生成缓存路径
-    "page_object_file_path": "./"
+    "page_object_file_path": current_path,
+    "delete": True
 }
 
 selenium = {
@@ -9,7 +15,10 @@ selenium = {
     # 当前平台，如果没有指定默认使用当前系统
     "os": "linux",
     # 浏览器驱动地址
-    "driver_path": "/home/amdins/桌面/geckodriver"
+    "driver_path": "/home/amdins/桌面/geckodriver",
+    "log_path": current_path,
+    "log_name": "geckodriver.log",
+    "delete_log": True
 }
 
 report = {
@@ -20,6 +29,7 @@ report = {
 }
 
 email = {
+    "use_email": False,
     # 邮件使用的服务器
     "stmp_server_addr": "smtp.yeah.net",
     # 邮件中发送者邮箱
@@ -42,11 +52,17 @@ case = {
     # 选择测试用例的类型 excel表示用excel文件中读取，db表示从数据库读取
     "type": "excel",
     # 文件路径或者db的uri
-    "url": "/Users/venmosnake/Documents/SeleniumAutoTest/case.xlsx",
-    "case_info": "/Users/venmosnake/Documents/SeleniumAutoTest/",  # 生成的case信息文件路径
+    "url": "/home/amdins/桌面/SeleniumAutoTest/case.xlsx",
+    # 生成的case信息文件路径
+    "case_info": current_path,
+    # 是否序列化Packages
     "serialize_packages": True,
-    "serialize_path": "./",
-
+    # 是否删除序列化文件
+    "delete_serialize_packages": True,
+    # 序列化路径
+    "serialize_path": current_path,
+    # 用例起始url
+    "base_url": "https://music.163.com/"
 }
 
 # 注册的插件

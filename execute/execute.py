@@ -4,7 +4,7 @@ import platform
 from case.cases.base import BaseCase
 from execute import WebDriver
 from execute.object import PageObject
-from managers import config
+import config
 from util.package.base import BasePackage
 from util.package.package import GenPo
 
@@ -19,6 +19,15 @@ class Executor:
         self.plugins = []
         self.before = []
         self.after = []
+
+    def reset(self):
+        self.plugins = []
+        self.before = []
+        self.after = []
+        self.driver = None
+        self.object = None
+        self.current_object = None
+        return self
 
     def add_plugin(self, plugin):
         self.plugins.append(plugin)
@@ -91,7 +100,6 @@ class Executor:
     def execute_element(self, name):
         self.driver.execute_element(self.object.get_with_action(name))
 
-    # todo：插件调用多了一次？？？
     def get_use_plugin(self, case):
         """
         使用插件表达式： assertion:B 表示该插件在测试用例之前执行
@@ -136,6 +144,7 @@ class Executor:
             return
         self.get_use_plugin(case)
         for b in self.before:
+            print("b")
             b.start(self.driver, case)
         self.before = []
 

@@ -1,3 +1,4 @@
+import os
 import re
 import time
 
@@ -8,6 +9,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.support.ui import WebDriverWait
 
+import config
 from execute.object import Element
 from util.tools.strings import wash_string
 
@@ -26,13 +28,20 @@ class Driver:
     def __init_browser(self, browser, driverpath):
         name = self.to_lower(browser)
         if name == "firefox":
-            return webdriver.Firefox(executable_path=driverpath)
+            return webdriver.Firefox(executable_path=driverpath,
+                                     service_log_path=os.path.join(config.selenium["log_path"],
+                                                                   config.selenium["log_name"]))
         elif name == "chrome":
-            return webdriver.Chrome(executable_path=driverpath)
+            return webdriver.Chrome(executable_path=driverpath,
+                                    service_log_path=os.path.join(config.selenium["log_path"],
+                                                                  config.selenium["log_name"]))
         elif name == "ie":
-            return webdriver.Ie(executable_path=driverpath)
+            return webdriver.Ie(executable_path=driverpath, service_log_path=os.path.join(config.selenium["log_path"],
+                                                                                          config.selenium["log_name"]))
         elif name == "edge":
-            return webdriver.Edge(executable_path=driverpath)
+            return webdriver.Edge(executable_path=driverpath,
+                                  service_log_path=os.path.join(config.selenium["delete_log"],
+                                                                config.selenium["log_name"]))
         else:
             raise ValueError(browser + " 不支持")
 

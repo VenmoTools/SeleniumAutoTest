@@ -24,3 +24,11 @@ class NoPorterError(Exception):
 
     def with_traceback(self, tb: Optional[TracebackType]) -> BaseException:
         return super().with_traceback(tb)
+
+
+class InitError(Exception):
+    def __init__(self, *args: object) -> None:
+        super().__init__(*args)
+
+    def with_traceback(self, tb: Optional[TracebackType]) -> BaseException:
+        return super().with_traceback(tb)

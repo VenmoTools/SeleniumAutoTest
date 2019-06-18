@@ -4,7 +4,7 @@ import re
 from case.reader.excel import ExcelReader
 from execute.driverexecute import NormalExecutor
 from genator.report import GenTest
-from managers import config
+import config
 
 
 class Run:
@@ -65,7 +65,7 @@ class Run:
         for read in self.collection["Plugin"]:
             gen.add_mod_var(self.template_add_plugin.format(read["class"], read["name"]))
 
-    def generator_file(self, name):
+    def generator_file(self, name="TestCase"):
         gen = GenTest(name)
         gen.add_package("from managers.manager import Manager")
         for k in self.collection:

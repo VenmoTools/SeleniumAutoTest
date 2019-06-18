@@ -116,9 +116,9 @@ function html_escape(s) {
 <div class='heading'>
 <h1 style="font-family: Microsoft YaHei">测试标题</h1>
 <p class='attribute'><strong>测试人员 : </strong> 测试人员</p>
-<p class='attribute'><strong>开始时间 : </strong> 2019-06-12 12:31:54</p>
-<p class='attribute'><strong>合计耗时 : </strong> 0:00:14.592914</p>
-<p class='attribute'><strong>测试结果 : </strong> 共 2，通过 2，通过率= 100.00%</p>
+<p class='attribute'><strong>开始时间 : </strong> 2019-06-18 13:11:52</p>
+<p class='attribute'><strong>合计耗时 : </strong> 0:01:28.358381</p>
+<p class='attribute'><strong>测试结果 : </strong> 共 1，通过 1，通过率= 100.00%</p>
 
 <p class='description'>测试描述</p>
 </div>
@@ -127,8 +127,8 @@ function html_escape(s) {
 <p id='show_detail_line'>
 <a class="btn btn-primary" href='javascript:showCase(0)'>概要{ 100.00% }</a>
 <a class="btn btn-danger" href='javascript:showCase(1)'>失败{ 0 }</a>
-<a class="btn btn-success" href='javascript:showCase(2)'>通过{ 2 }</a>
-<a class="btn btn-info" href='javascript:showCase(3)'>所有{ 2 }</a>
+<a class="btn btn-success" href='javascript:showCase(2)'>通过{ 1 }</a>
+<a class="btn btn-info" href='javascript:showCase(3)'>所有{ 1 }</a>
 </p>
 <table id='result_table' class="table table-condensed table-bordered table-hover">
 <colgroup>
@@ -149,28 +149,39 @@ function html_escape(s) {
 </tr>
 
 <tr class='passClass warning'>
-    <td>gen_test.TestLogin</td>
-    <td class="text-center">2</td>
-    <td class="text-center">2</td>
+    <td>case_test.Testcase</td>
+    <td class="text-center">1</td>
+    <td class="text-center">1</td>
     <td class="text-center">0</td>
     <td class="text-center">0</td>
-    <td class="text-center"><a href="javascript:showClassDetail('c1',2)" class="detail" id='c1'>详细</a></td>
+    <td class="text-center"><a href="javascript:showClassDetail('c1',1)" class="detail" id='c1'>详细</a></td>
 </tr>
 
 <tr id='pt1_1' class='hiddenRow'>
-    <td class='passCase'><div class='testcase'>test_login</div></td>
-    <td colspan='5' align='center'><span class="label label-success success">通过</span></td>
-</tr>
+    <td class='passCase'><div class='testcase'>test_Playsong</div></td>
+    <td colspan='5' align='center'>
+    <!--默认收起错误信息 -Findyou
+    <button id='btn_pt1_1' type="button"  class="btn btn-danger btn-xs collapsed" data-toggle="collapse" data-target='#div_pt1_1'>通过</button>
+    <div id='div_pt1_1' class="collapse">  -->
+    <!-- 默认展开错误信息 -Findyou -->
+    <button id='btn_pt1_1' type="button"  class="btn btn-danger btn-xs" data-toggle="collapse" data-target='#div_pt1_1'>通过</button>
+    <div id='div_pt1_1' class="collapse in">
+    <pre>
+    
+pt1_1: b
+b
+b
 
-<tr id='pt1_2' class='hiddenRow'>
-    <td class='passCase'><div class='testcase'>test_register</div></td>
-    <td colspan='5' align='center'><span class="label label-success success">通过</span></td>
+
+    </pre>
+    </div>
+    </td>
 </tr>
 
 <tr id='total_row' class="text-center active">
     <td>总计</td>
-    <td>2</td>
-    <td>2</td>
+    <td>1</td>
+    <td>1</td>
     <td>0</td>
     <td>0</td>
     <td>通过率：100.00%</td>
@@ -184,9 +195,3 @@ function html_escape(s) {
     
 </body>
 </html>
-
-
-会什么？
-用过它做过什么？
-遇到那些问题？怎么解决的？
-是否能够独立负责一个流程的测试？

@@ -4,7 +4,7 @@ import pickle
 import xlrd
 from case.cases.base import BaseCase
 from case.reader.base import BaseReader
-from managers import config
+import config
 from util.processor.CaseProcess import CaseProcessor
 
 

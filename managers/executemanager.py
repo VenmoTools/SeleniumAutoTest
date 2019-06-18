@@ -36,11 +36,14 @@ class ExecuteManager:
         """
         try:
             package = self.packages.get_package_by_name(name)
+            if len(self.executors) == 0:
+                raise ValueError("no more executors")
             exec = self.executors.pop()
             for pk in package:
                 with exec as execute:
                     execute.add_plugin(self.plugin_center.plugins)
                     execute.init(pk)
+            self.executors.add(exec.reset())
         except ValueError as e:
             print(e)
 
@@ -51,5 +54,6 @@ class ExecuteManager:
                 with exec as execute:
                     execute.add_plugin(self.plugin_center.plugins)
                     execute.init(pk)
+            self.executors.add(exec.reset())
         except ValueError as e:
             print(e)

@@ -4,7 +4,7 @@ import time
 from hashlib import sha1
 
 from case.cases.base import BaseCase
-from managers import config
+import config
 from util.package.base import BasePackage
 from util.processor.process import Processor
 
@@ -70,6 +70,7 @@ class GenPo:
         if isinstance(case, BaseCase):
             self.file.write("{0}.method={1}\n".format(self.__gen_name(case), case.method))
             self.file.write("{0}.value={1}\n".format(self.__gen_name(case), case.value))
+
             self.file.write(self.__action(case))
 
             # todo:所有控件
@@ -86,6 +87,11 @@ class GenPo:
                 return case.element_name + "_iframe"
             if case.element_type == "js":
                 return case.element_name + "_java_script"
+
+    def trim_space(self, data):
+        if isinstance(data, str):
+            return data.replace(" ", "").replace("\n", "")
+        raise TypeError("{} is not string".format(data))
 
     # todo:元素拖动
     def __action(self, case):
@@ -113,6 +119,9 @@ class GenPo:
                 data = "{0}.action={1}\n".format(name, "js")
                 data += "{0}.select={1}\n".format(name, case.input)
                 return data
+            else:
+                raise ValueError("{} not support".format(case.action))
+        raise TypeError("{} is not BaseCase".format(case.__class__))
 
     def __enter__(self):
         return self

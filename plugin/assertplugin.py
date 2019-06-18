@@ -1,6 +1,8 @@
 import re
 
+from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.remote.webelement import WebElement
+from exception.exception import InitError
 from plugin.base import BasePlugin
 
 
@@ -8,35 +10,36 @@ class AssertPlugin(BasePlugin):
 
     def __init__(self, name):
         super().__init__(name)
-        self.index = 1
-        self.driver = None
 
     def start(self, driver, case):
         self.driver = driver
-        # self.parser(case.assertion)
-        self.parser(case)
+        if case.assertion != "":
+            self.parser(case.assertion)
 
     def parser(self, data):
         # data = data.replace(" ", "")
         # 解析关键字
-        contents = re.findall("(is|contains|exist|true|false|enable|display|selected|notnull)\((.+'\)$)", data)
+        if not self.driver:
+            raise InitError("请初始化浏览器")
+        contents = re.findall("(is|contains|exist|true|false|enable|display|selected|notnull)\((.+)\)", data)
+
         if len(contents) != 1:
-            raise ValueError("表达式语法错误: {}".format(data))
+            raise ValueError("解析断言关键字时错误: {}".format(data))
         try:
             checks, datas = contents[0]
         except ValueError:
-            raise ValueError("表达式语法错误: {}".format(data))
+            raise ValueError("解析断言关键字时错误: {}".format(data))
 
         # 解析元素关键字
         senc = re.findall("(element_attr|title|element_is|element|element_property|js|element_text)\|(.+?)\|::'(.+?)'",
                           datas)
         if len(senc) != 1:
-            raise ValueError("表达式语法错误: {}".format(data))
+            raise ValueError("解析元素关键字时错误: {}".format(datas))
         # 解析后的数据 element_attr `class`,`.big`,`data` 1
         try:
             ele, methods, except_data = senc[0]
         except ValueError:
-            raise ValueError("表达式语法错误: {}".format(data))
+            raise ValueError("解析元素定位方式时错误: {}".format(data))
         result_data = self.__parser(ele, methods)
 
         func = self.__getattribute__(checks + "_check")
@@ -126,26 +129,40 @@ class AssertPlugin(BasePlugin):
         if ele == "js":
             res = re.findall("`(.+?)`", methods)
             if len(res) != 1:
-                raise ValueError("表达式语法错误: {}".format(data))
+                raise ValueError("解析Javascript时语法错误: {}".format(data))
             return self.js(res[0])
 
         #  `class`,`.big`,`data`
         res = re.findall("`(.+?)`,`(.+?)`,`(.+?)`", methods)
         if len(res) != 1:
-            raise ValueError("表达式语法错误: {}".format(methods))
+            res = re.findall("`(.+?)`,`(.+?)`", methods)
+            if len(res) != 1:
+                raise ValueError("解析元素定位方式时错误: {}".format(methods))
         try:
-            local_method, local_value, find_value = res[0]
+            if len(res[0]) == 3:
+                local_method, local_value, find_value = res[0]
+            elif len(res[0]) == 2:
+                local_method, local_value = res[0]
+                find_value = ""
+            else:
+                raise ValueError("解析元素定位方式时错误: {}".format(methods))
         except ValueError:
-            raise ValueError("表达式语法错误: {}".format(methods))
+            raise ValueError("解析元素定位方式时错误: {}".format(methods))
 
         func = self.__getattribute__(ele)
         return func(local_method, local_value, find_value)
 
     def element_is(self, local_method, local_value, find_value):
-        return self.driver.find_with_timeout(local_method, local_value).tag_name
+        try:
+            return self.driver.find_with_timeout(local_method, local_value).tag_name
+        except TimeoutException:
+            return "超时元素时超时！，定位方式：{0},定位值: {1}".format(local_method, local_value)
 
     def element(self, local_method, local_value):
-        return self.driver.find_with_timeout(local_method, local_value)
+        try:
+            return self.driver.find_with_timeout(local_method, local_value)
+        except TimeoutException:
+            return "超时元素时超时！，定位方式：{0},定位值: {1}".format(local_method, local_value)
 
     def element_property(self, local_method, local_value, find_value):
         return self.driver.find_with_timeout(local_method, local_value).get_property(find_value)
@@ -155,16 +172,26 @@ class AssertPlugin(BasePlugin):
         return self.driver.web_driver.execute_script(cmd)
 
     def element_text(self, local_method, local_value, value):
-        return self.driver.find_with_timeout(local_method, local_value).text
+        try:
+            return self.driver.find_with_timeout(local_method, local_value).text
+        except TimeoutException:
+            return "超时元素时超时！，定位方式：{0},定位值: {1}".format(local_method, local_value)
 
     def title(self):
         return self.driver.web_driver.title
 
     def element_attr(self, method, locvalue, value):
-        return self.driver.find_with_timeout(method, locvalue).get_attribute(value)
+        try:
+            return self.driver.find_with_timeout(method, locvalue).get_attribute(value)
+        except TimeoutException:
+            return "超时元素时超时！，定位方式：{0},定位值: {1}".format(method, locvalue)
 
 
 if __name__ == '__main__':
-    data = "is(js|`return document.title;')`|::'value')"
+    # data = "is(js|`return document.title;')`|::'value')"
+    data = "is(element_text|`xpath`,`//em[text()='我爱的人走了')]`|::'我爱的人走了')"
+    # datas = "element_text|`xpath`,`//em[text()='我爱的人走了')]`|"
+    # contents = re.findall("(is|contains|exist|true|false|enable|display|selected|notnull)\((.+)\)", data)
+    # print(contents)
     a = AssertPlugin("assertion")
     a.parser(data)
