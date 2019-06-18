@@ -360,7 +360,8 @@ class case(unittest.TestCase):
 		 execute.run_by_name('Test')
 
 ```
-
+## 版本
+[](CHANGELOG.md)
 
 ## TODO
 
