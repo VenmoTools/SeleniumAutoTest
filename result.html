@@ -116,18 +116,18 @@ function html_escape(s) {
 <div class='heading'>
 <h1 style="font-family: Microsoft YaHei">测试标题</h1>
 <p class='attribute'><strong>测试人员 : </strong> 测试人员</p>
-<p class='attribute'><strong>开始时间 : </strong> 2019-06-18 13:11:52</p>
-<p class='attribute'><strong>合计耗时 : </strong> 0:01:28.358381</p>
-<p class='attribute'><strong>测试结果 : </strong> 共 1，通过 1，通过率= 100.00%</p>
+<p class='attribute'><strong>开始时间 : </strong> 2019-06-19 11:02:05</p>
+<p class='attribute'><strong>合计耗时 : </strong> 0:00:11.015984</p>
+<p class='attribute'><strong>测试结果 : </strong> 共 1，错误 1，通过率= 0.00%</p>
 
 <p class='description'>测试描述</p>
 </div>
 
 
 <p id='show_detail_line'>
-<a class="btn btn-primary" href='javascript:showCase(0)'>概要{ 100.00% }</a>
+<a class="btn btn-primary" href='javascript:showCase(0)'>概要{ 0.00% }</a>
 <a class="btn btn-danger" href='javascript:showCase(1)'>失败{ 0 }</a>
-<a class="btn btn-success" href='javascript:showCase(2)'>通过{ 1 }</a>
+<a class="btn btn-success" href='javascript:showCase(2)'>通过{ 0 }</a>
 <a class="btn btn-info" href='javascript:showCase(3)'>所有{ 1 }</a>
 </p>
 <table id='result_table' class="table table-condensed table-bordered table-hover">
@@ -148,29 +148,57 @@ function html_escape(s) {
     <td>详细</td>
 </tr>
 
-<tr class='passClass warning'>
+<tr class='errorClass warning'>
     <td>case_test.Testcase</td>
     <td class="text-center">1</td>
+    <td class="text-center">0</td>
+    <td class="text-center">0</td>
     <td class="text-center">1</td>
-    <td class="text-center">0</td>
-    <td class="text-center">0</td>
     <td class="text-center"><a href="javascript:showClassDetail('c1',1)" class="detail" id='c1'>详细</a></td>
 </tr>
 
-<tr id='pt1_1' class='hiddenRow'>
-    <td class='passCase'><div class='testcase'>test_Playsong</div></td>
+<tr id='ft1_1' class='none'>
+    <td class='errorCase'><div class='testcase'>test_Playsong</div></td>
     <td colspan='5' align='center'>
     <!--默认收起错误信息 -Findyou
-    <button id='btn_pt1_1' type="button"  class="btn btn-danger btn-xs collapsed" data-toggle="collapse" data-target='#div_pt1_1'>通过</button>
-    <div id='div_pt1_1' class="collapse">  -->
+    <button id='btn_ft1_1' type="button"  class="btn btn-danger btn-xs collapsed" data-toggle="collapse" data-target='#div_ft1_1'>错误</button>
+    <div id='div_ft1_1' class="collapse">  -->
     <!-- 默认展开错误信息 -Findyou -->
-    <button id='btn_pt1_1' type="button"  class="btn btn-danger btn-xs" data-toggle="collapse" data-target='#div_pt1_1'>通过</button>
-    <div id='div_pt1_1' class="collapse in">
+    <button id='btn_ft1_1' type="button"  class="btn btn-danger btn-xs" data-toggle="collapse" data-target='#div_ft1_1'>错误</button>
+    <div id='div_ft1_1' class="collapse in">
     <pre>
     
-pt1_1: b
+ft1_1: b
 b
 b
+Traceback (most recent call last):
+  File "/home/amdins/桌面/SeleniumAutoTest/execute/driverexecute.py", line 17, in execute
+    self.execute_element(kind(c))
+  File "/home/amdins/桌面/SeleniumAutoTest/execute/execute.py", line 95, in execute_element
+    self.driver.execute_element(self.object.get_with_action(name))
+  File "/home/amdins/桌面/SeleniumAutoTest/execute/WebDriver.py", line 117, in execute_element
+    ele = self.find_with_timeout(result.method, result.value, 5)
+  File "/home/amdins/桌面/SeleniumAutoTest/execute/WebDriver.py", line 90, in find_with_timeout
+    ele = WebDriverWait(self.__driver, timeout).until(EC.presence_of_element_located((by, value)))
+  File "/usr/local/lib/python3.6/dist-packages/selenium/webdriver/support/wait.py", line 80, in until
+    raise TimeoutException(message, screen, stacktrace)
+selenium.common.exceptions.TimeoutException: Message: 
+
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/amdins/桌面/text/case_test.py", line 17, in test_Playsong
+    execute.run_by_name('playsong')
+  File "/home/amdins/桌面/SeleniumAutoTest/managers/center.py", line 68, in run_by_name
+    self.manager.execute_one_by_name(name)
+  File "/home/amdins/桌面/SeleniumAutoTest/managers/executemanager.py", line 45, in execute_one_by_name
+    execute.init(pk)
+  File "/home/amdins/桌面/SeleniumAutoTest/execute/execute.py", line 64, in init
+    self.execute(process)
+  File "/home/amdins/桌面/SeleniumAutoTest/execute/driverexecute.py", line 19, in execute
+    raise RuntimeError("Step: {0} ErrorMsg:'{1}',case:'{2}'".format(c.id, e, current_case))
+NameError: name 'current_case' is not defined
 
 
     </pre>
@@ -181,10 +209,10 @@ b
 <tr id='total_row' class="text-center active">
     <td>总计</td>
     <td>1</td>
+    <td>0</td>
+    <td>0</td>
     <td>1</td>
-    <td>0</td>
-    <td>0</td>
-    <td>通过率：100.00%</td>
+    <td>通过率：0.00%</td>
 </tr>
 </table>
 

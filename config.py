@@ -3,6 +3,16 @@ import os
 # 当前文件路径
 current_path = os.path.dirname(__file__)
 
+# 元素名称转换映射关系
+element_name = {
+    "输入框": "_input",
+    "按钮": "_button",
+    "下拉列表": "_select",
+    "iframe": "_iframe",
+    "js": "_java_script",
+    "链接": "_link",
+}
+
 url = {
     # 生成缓存路径
     "page_object_file_path": current_path,
@@ -63,6 +73,9 @@ case = {
     "serialize_path": current_path,
     # 用例起始url
     "base_url": "https://music.163.com/"
+}
+image = {
+    "path": current_path
 }
 
 # 注册的插件

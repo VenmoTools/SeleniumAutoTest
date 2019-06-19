@@ -22,12 +22,17 @@ class PageObject:
     def get_with_action(self, name):
         """
         根据当前的name获取元素操作属性
-
         :param name:
         :return:
         """
         if self.current_section is None:
             raise InitError("请选择当前的section")
+
+        # input_button.method = id
+        # input_button.value = kw
+        # input_button.action = click
+        # input_button.inputs = ""
+
         method = name + ".method"
         value = name + ".value"
         action = name + ".action"
@@ -35,20 +40,16 @@ class PageObject:
         action_method = self.current_section[action]
 
         r = Element()
+        # 获取元素定位方式
         r.method = self.current_section[method]
+        # 获取元素定位值
         r.value = self.current_section[value]
+        # 获取元素执行动作
         r.action = self.current_section[action]
-        if action_method == "send_keys":
+
+        if action_method != "click":
             r.inputs = self.current_section[inputs]
-        if action_method == "select":
-            select = name + ".select"
-            r.select = self.current_section[select]
-        if action_method == "iframe":
-            iframe = name + ".iframe"
-            r.iframe = self.current_section[iframe]
-        if action_method == "js":
-            js = name + ".javaScript"
-            r.js = self.current_section[js]
+
         return r
 
 
@@ -60,33 +61,6 @@ class Element:
         self.__value = ""
         self.__action = ""
         self.__inputs = ""
-        self.__select = ""
-        self.__iframe = ""
-        self.__js = ""
-
-    @property
-    def js(self):
-        return self.__js
-
-    @js.setter
-    def js(self, js):
-        self.__js = js
-
-    @property
-    def iframe(self):
-        return self.__iframe
-
-    @iframe.setter
-    def iframe(self, iframe):
-        self.__iframe = iframe
-
-    @property
-    def select(self):
-        return self.__select
-
-    @select.setter
-    def select(self, select):
-        self.__select = select
 
     @property
     def method(self):

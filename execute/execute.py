@@ -1,10 +1,13 @@
 import os
 import platform
+import re
 
+from selenium.webdriver import Firefox
+
+import config
 from case.cases.base import BaseCase
 from execute import WebDriver
 from execute.object import PageObject
-import config
 from util.package.base import BasePackage
 from util.package.package import GenPo
 
@@ -19,6 +22,7 @@ class Executor:
         self.plugins = []
         self.before = []
         self.after = []
+        self.exception = []
 
     def reset(self):
         self.plugins = []
@@ -82,21 +86,6 @@ class Executor:
     def execute(self, process):
         raise NotImplementedError()
 
-    # todo: 拖动元素
-    def kind(self, case):
-        if case.element_type == "输入框":
-            return case.element_name + "_input"
-        if case.element_type == "按钮":
-            return case.element_name + "_button"
-        if case.element_type == "下拉列表":
-            return case.element_name + "_select"
-        if case.element_type == "iframe":
-            return case.element_name + "_iframe"
-        if case.element_type == "js":
-            return case.element_name + "_java_script"
-        # if case.element_type == "拖动":
-        #     return case.element_name + "_drop"
-
     def execute_element(self, name):
         self.driver.execute_element(self.object.get_with_action(name))
 
@@ -125,28 +114,39 @@ class Executor:
     def kind_of_plugin(self, p):
         if p == "":
             return
-        arr = p.split(":")
-        if len(arr) == 2:
-            if arr[1] == "B":
-                # 如果以B结尾
-                plugin = self.plugin_exist(arr[0])
-                if plugin is not None:
-                    self.before.append(plugin)
-            elif arr[1] == "A":
-                plugin = self.plugin_exist(arr[0])
-                if plugin is not None:
-                    self.after.append(plugin)
+        res = re.findall("(.+):([ABE])", p)
+        if res != 1:
+            raise SyntaxError("'{0}':  命名格式错误 插件名:标识".format(p))
+        plugin_name, when = res[0]
+        # 在已注册的插件中去寻找
+        plugin = self.plugin_exist(plugin_name)
+
+        if plugin is None:
+            raise ValueError("{} 插件没有注册".format(plugin_name))
+        if when.upper() == "B":
+            self.before.append(plugin)
+        elif when.upper() == "A":
+            self.after.append(plugin)
+        elif when.upper() == "E":
+            self.exception.append(plugin)
         else:
-            raise ValueError("'{0}':  命名格式错误 插件名:标识".format(p))
+            raise SyntaxError("'{0}':  命名格式错误 插件名:标识".format(p))
 
     def use_before_plugin(self, case):
         if case.plugins == "" or case.plugins == "null":
             return
         self.get_use_plugin(case)
         for b in self.before:
-            print("b")
             b.start(self.driver, case)
         self.before = []
+
+    def use_error_plugin(self, case):
+        if case.plugins == "" or case.plugins == "null":
+            return
+        self.get_use_plugin(case)
+        for b in self.exception:
+            b.start(self.driver, case)
+        self.exception = []
 
     def use_after_plugin(self, case):
         if case.plugins == "" or case.plugins == "null":
@@ -155,3 +155,80 @@ class Executor:
         for b in self.after:
             b.start(self.driver, case)
         self.before = []
+
+    def browser_action(self, case, current):
+        """
+        处理浏览器动作
+        :param case: 当前执行的用例
+        :param current: 当前的时刻
+        :return:
+        """
+        if case.execute_action == "" or case.execute_action == "null":
+            return
+        if isinstance(case, BaseCase):
+            res = re.findall("(.+?):(\w)", case.execute_action)
+            if len(res) != 1:
+                raise SyntaxError("Syntax Error {}".format(res))
+            cmd, when = res[0]
+            if when.lower() == current.lower():
+                self.execute_browser_action(cmd)
+
+    def windows_control(self, cmd):
+        if cmd == "win_max":
+            self.driver.web_driver.maximize_window()
+        elif cmd == "win_min":
+            self.driver.web_driver.minimize_window()
+        elif cmd == "win_full":
+            self.driver.web_driver.fullscreen_window()
+        else:
+            raise SyntaxError("Syntax Error:{} not supported".format(cmd))
+
+    def switch_windows(self, cmd):
+        handles = self.driver.web_driver.window_handles
+        if cmd == "switch_last":
+            self.driver.web_driver.switch_to.window(handles[len(handles) - 1])
+        elif cmd == "switch_first":
+            self.driver.web_driver.switch_to.window(handles[0])
+        else:
+            res = re.findall("switch_index\((\d)\)", cmd)
+            if len(res) != 1:
+                raise SyntaxError("Syntax Error:{}".format(cmd))
+            try:
+                self.driver.web_driver.switch_to.window(handles[int(res[0])])
+            except IndexError:
+                raise SyntaxError("Syntax Error:{} index out of max windows number".format(cmd))
+
+    def handle_alter(self, cmd):
+        if cmd == "alter_accept":
+            self.driver.web_driver.switch_to.alert.accept()
+        elif cmd == "alter_dismiss":
+            self.driver.web_driver.switch_to.alert.dismiss()
+        else:
+            res = re.findall("alter_send\((\d)\)", cmd)
+            if len(res) != 1:
+                raise SyntaxError("Syntax Error:{}".format(cmd))
+            self.driver.web_driver.switch_to.alert.send_keys(res[0])
+
+    def page_control(self, cmd):
+        if cmd == "page_forward":
+            self.driver.web_driver.forward()
+        elif cmd == "page_back":
+            self.driver.web_driver.back()
+        else:
+            raise SyntaxError("Syntax Error:{} not supported".format(cmd))
+
+    def execute_browser_action(self, cmd):
+        if "win" in cmd:
+            self.windows_control(cmd)
+        elif "switch" in cmd:
+            self.switch_windows(cmd)
+        elif "alter" in cmd:
+            self.handle_alter(cmd)
+        elif "page" in cmd:
+            self.page_control(cmd)
+        else:
+            raise SyntaxError("Syntax Error:{} not supported".format(cmd))
+
+
+if __name__ == '__main__':
+    f = Firefox()

@@ -11,7 +11,9 @@ from selenium.webdriver.support.ui import WebDriverWait
 
 import config
 from execute.object import Element
-from util.tools.strings import wash_string
+from util.tools.element import convert
+from util.tools.pasers import Parser
+from util.tools.strings import to_lower_with_wash
 
 
 class Driver:
@@ -26,7 +28,7 @@ class Driver:
         self.__driver = self.__init_browser(browser, driverpath)
 
     def __init_browser(self, browser, driverpath):
-        name = self.to_lower(browser)
+        name = to_lower_with_wash(browser)
         if name == "firefox":
             return webdriver.Firefox(executable_path=driverpath,
                                      service_log_path=os.path.join(config.selenium["log_path"],
@@ -63,12 +65,6 @@ class Driver:
             return path.endswith(".exe")
         raise ValueError(path + "不是字符串")
 
-    def to_lower(self, string):
-        string = wash_string(string)
-        if isinstance(string, str):
-            return string.lower()
-        return string
-
     def sleep(self, sec):
         """
         固定时长等待
@@ -90,24 +86,11 @@ class Driver:
         self.__driver.implicitly_wait(sec)
 
     def find_with_timeout(self, by, value, timeout=30):
-        by = self.__convert(by)
+        by = convert(by)
         ele = WebDriverWait(self.__driver, timeout).until(EC.presence_of_element_located((by, value)))
         if isinstance(ele, WebElement):
             return ele
         return
-
-    def __convert(self, string):
-        # class_name
-        if isinstance(string, str):
-            arr = string.split("_")
-            res = " ".join(arr)
-            support = ["id", "xpath", "link text", "partial link text", "name", "tag name", "class name",
-                       "css selector"]
-            if res not in support:
-                raise ValueError("定位方式错误,必须是以下几种,{0}".format(support))
-            return res
-
-        raise ValueError(string + "不是字符串类型")
 
     def close(self):
         self.__driver.close()
@@ -118,7 +101,6 @@ class Driver:
             return self.find_element(method, value)
         raise ValueError(info + "不是元组类型")
 
-    # todo:元素拖动
     def execute_element(self, result):
         """
         支持的方式：
@@ -127,41 +109,88 @@ class Driver:
             输入
             选择框
             切换iframe
+            拖动元素
+            滚动条
         :param result:
         :return:
         """
         ele = self.find_with_timeout(result.method, result.value, 5)
         if isinstance(result, Element):
+            # 按钮
             if result.action == "click":
                 return ele.click()
+            # 输入框
             if result.action == "send_keys":
                 return ele.send_keys(result.inputs)
+            # 选择框
             if result.action == "select":
                 # sex_select.select = (text,男)
                 # todo: deselect
+                method, value = Parser.parser_select_value(result.inputs)
                 select = Select(ele)
-                res = re.findall("\((index|value|text),(\w{1,30}|\d{1,20})\)", result.select)
-                try:
-                    method, value = res[0]
-                    if method == "index":
-                        select.select_by_index(value)
-                        return ele
-                    if method == "text":
-                        select.select_by_visible_text(value)
-                        return ele
-                    if method == "value":
-                        select.select_by_value(value)
-                        return ele
-                except ValueError:
-                    raise ValueError("'{}',格式错误".format(result.select))
+                if method == "index":
+                    select.select_by_index(value)
+                    return ele
+                if method == "text":
+                    select.select_by_visible_text(value)
+                    return ele
+                if method == "value":
+                    select.select_by_value(value)
+                    return ele
+            # 切换iframe
             if result.action == "iframe":
                 self.__driver.switch_to.frame(ele)
                 return ele
+            # 执行js代码
             if result.action == "js":
-                self.__driver.execute_script(result.js)
+                self.__driver.execute_script(result.inputs)
                 return ele
-            # if result.action == "drop":
-
+            # 拖动元素
+            if result.action == "drop":
+                # to(x,y)
+                # to(ele(method,value))
+                action = ActionChains(self.__driver)
+                if "ele" in result.inputs:
+                    methods, values = Parser.parser_ele_drop_action_ele(result.inputs)
+                    to_ele = self.find_with_timeout(methods, values)
+                    action.click_and_hold(ele).move_to_element(to_ele).release().perform()
+                else:
+                    x, y = Parser.parser_ele_drop_action_location(result.inputs)
+                    action.click_and_hold(ele).move_by_offset(x, y).release().perform()
+                return ele
+            # 滚动条
+            if result.action == "scroll":
+                methods, values = Parser.parser_scroll_by_js(result.inputs)
+                if "ele" in result.inputs:
+                    local = self.find_with_timeout(methods, values).location
+                    self.__driver.execute_script(
+                        "document.documentElement.scrollTo({1},{0})".format(local["x"], local["y"]))
+                if methods.lower() == "to_left":
+                    if values == "max_left":
+                        return self.__driver.execute_script(
+                            "document.documentElement.scrollLeft=0".format(values))
+                    if values == "max_right":
+                        return self.__driver.execute_script(
+                            "document.documentElement.scrollLeft=document.documentElement.scrollLeftMax".format(values))
+                    self.__driver.execute_script("document.documentElement.scrollLeft={}".format(values))
+                elif methods.lower() == "to_top":
+                    if values == "max_top":
+                        return self.__driver.execute_script(
+                            "document.documentElement.scrollTop=scrollMaxX".format(values))
+                    if values == "max_down":
+                        return self.__driver.execute_script(
+                            "document.documentElement.scrollTop=scrollMaxY".format(values))
+                    self.__driver.execute_script("document.documentElement.scrollTop={}".format(values))
+                elif methods.lower() == "to_index":
+                    try:
+                        x, y = re.findall("^\((\d+),(\d+)\)$", values)[0]
+                    except IndexError:
+                        raise SyntaxError("滚动条语法错误,{}".format(result.inputs))
+                    self.__driver.execute_script("document.documentElement.scrollTo({1},{0})".format(x, y))
+            # 双机
+            if result.action == "dclick":
+                return ActionChains(self.__driver).double_click(ele).perform()
+            # 键盘操作
         else:
             raise ValueError("{} is not Element".format(result.__class__))
 
@@ -172,7 +201,7 @@ class Driver:
         :param value: 值
         :return:
         """
-        method = self.__convert(method)
+        method = convert(method)
         return self.__driver.find_element(method, value)
 
     def select_element(self, method, value):
@@ -182,21 +211,21 @@ class Driver:
         :param value:值
         :return:
         """
-        method = self.__convert(method)
+        method = convert(method)
         ele = self.__driver.find_element(method, value)
         return Select(ele)
 
     def drop_element(self, method1, value1, method2, value2):
         action = ActionChains(self.__driver)
-        method1 = self.__convert(method1)
-        method2 = self.__convert(method2)
+        method1 = convert(method1)
+        method2 = convert(method2)
         source = self.__driver.find_element(method1, value1)
         target = self.__driver.find_element(method2, value2)
         return action.drag_and_drop(source, target)
 
     def move_to(self, method1, value1, x, y):
         action = ActionChains(self.__driver)
-        method1 = self.__convert(method1)
+        method1 = convert(method1)
         ele = self.__driver.find_element(method1, value1)
         return action.click_and_hold(ele).move_by_offset(x, y).release().perform(ele)
 
